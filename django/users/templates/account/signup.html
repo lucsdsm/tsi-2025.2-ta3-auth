@@ -107,7 +107,7 @@
 </head>
 <body>
     <div class="container">
-    <form action="{% url 'create_user' %}" method="post">
+    <form action="{% url 'local_signup' %}" method="post">
         {% csrf_token %}
         <div>
             <label for="username">Nome de Usuário:</label>
@@ -124,7 +124,7 @@
         <br> 
         <button type="submit">Cadastrar</button> <br>
         <div class="links">
-            <a href="{% url 'account_login' %}">Já tem uma conta? Faça login</a> | 
+            <a href="{% url 'local_login' %}">Já tem uma conta? Faça login</a> | 
             <a href="{% url 'home' %}">Voltar</a>
         </div>
     </form>

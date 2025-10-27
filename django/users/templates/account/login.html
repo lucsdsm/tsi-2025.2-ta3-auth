@@ -143,7 +143,7 @@
         <div class="divider">ou</div>
 
         <!-- Formulário tradicional -->
-        <form action="{% url 'user_login' %}" method="post">
+        <form action="{% url 'local_login' %}" method="post">
             {% csrf_token %}
             
             {% if form.non_field_errors %}
@@ -175,7 +175,7 @@
 
             <div class="links">
                 <a href="">Esqueceu a senha?</a> | 
-                <a href="{% url 'create_user' %}">Criar conta </a> | 
+                <a href="{% url 'local_signup' %}">Criar conta </a> | 
                 <a href="{% url 'home' %}">Voltar</a>
             </div>
 
