@@ -147,7 +147,7 @@
         <div class="divider">ou</div>
 
         <!-- Formulário tradicional -->
-        <form method="post">
+        <form action="{% url 'user_login' %}" method="post">
             {% csrf_token %}
             
             {% if form.non_field_errors %}
@@ -155,16 +155,16 @@
             {% endif %}
 
             <div class="form-group">
-                <label for="id_login">Usuário ou Email</label>
-                <input type="text" name="login" id="id_login" required>
+                <label for="login">Usuário ou Email</label>
+                <input type="text" name="login" id="login" required>
                 {% if form.login.errors %}
                     <div class="error">{{ form.login.errors }}</div>
                 {% endif %}
             </div>
 
             <div class="form-group">
-                <label for="id_password">Senha</label>
-                <input type="password" name="password" id="id_password" required>
+                <label for="password">Senha</label>
+                <input type="password" name="password" id="password" required>
                 {% if form.password.errors %}
                     <div class="error">{{ form.password.errors }}</div>
                 {% endif %}
@@ -179,7 +179,7 @@
 
             <div class="links">
                 <a href="{% url 'account_reset_password' %}">Esqueceu a senha?</a> | 
-                <a href="{% url 'account_signup' %}">Criar conta</a>
+                <a href="{% url 'create_user' %}">Criar conta</a>
             </div>
         </form>
     </div>
