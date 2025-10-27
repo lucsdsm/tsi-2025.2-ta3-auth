@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetShop - Bem-vindo</title>
     <style>
         * {
             margin: 0;
@@ -132,13 +131,12 @@
     {% if user.is_authenticated %}
     <div class="user-info">
         <span>👋 Olá, {{ user.username }}!</span>
-        <a href="{% url 'account_logout' %}">Sair</a>
+        <a href="{% url 'user_logout' %}">Sair</a>
     </div>
     {% endif %}
 
     <div class="container">
         <div class="logo">🐾</div>
-        <h1>Bem-vindo ao PetShop</h1>
         <p>O melhor lugar para cuidar do seu melhor amigo!</p>
         
         <div class="buttons">

@@ -1,14 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from .models import User
-
-# Create your views here.
+import requests, os
 
 def home(request):
     return render(request, 'home.html')
 
+# Views para login local e CRUD de usuários
+
 def create_user(request):
-    error_message = None  # Inicializar antes do if
+    error_message = None  # inicializar antes do if
     if request.method == "POST":
         username = request.POST.get("username")
         email = request.POST.get("email")
@@ -18,13 +19,17 @@ def create_user(request):
             error_message = "Todos os campos são obrigatórios."
         elif len(password) < 8:
             error_message = "A senha deve ter pelo menos 8 caracteres."
-        
+        elif User.objects.filter(username=username).exists():
+            error_message = "Nome de usuário já existe."
+        elif User.objects.filter(email=email).exists():
+            error_message = "Email já cadastrado."
+
         if error_message is None:
             user = User(username=username, email=email)
-            user.set_password(password)  # Criptografa a senha corretamente
+            user.set_password(password)  # criptografa a senha
             user.save()
             return render(request, "account/login.html", {"user": user})
-    return render(request, "account/signUp.html", {"error": error_message} if error_message else {})
+    return render(request, "account/signup.html", {"error": error_message} if error_message else {})
 
 def list_users(request):
     users = User.objects.all()
@@ -32,7 +37,7 @@ def list_users(request):
 
 def update_user(request, user_id):
     user = User.objects.get(id=user_id)
-    error_message = None  # Inicializar antes do if
+    error_message = None  # inicializar antes do if
 
     if request.method == "POST":
         username = request.POST.get("username")
@@ -47,7 +52,7 @@ def update_user(request, user_id):
         if error_message is None:
             user.username = username
             user.email = email
-            user.set_password(password)  # Criptografa a senha corretamente
+            user.set_password(password)  # criptografa a senha corretamente
             user.save()
             return render(request, "users/home.html", {"user": user})
 
@@ -90,3 +95,80 @@ def user_login(request):
         return render(request, "account/login.html", {"error": error_message} if error_message else {})
 
     return render(request, "account/login.html")
+
+def user_logout(request):
+    from django.contrib.auth import logout
+    logout(request)
+    return redirect('home')
+
+# Views para login via Google OAuth2
+def google_login(request):
+    client_id = os.getenv('GOOGLE_CLIENT_ID')
+    redirect_uri = 'https://zany-goggles-94w6qq9v55g2w55-8000.app.github.dev/users/google/callback/'
+    scope = 'openid email profile'
+    state = 'random_state_string'
+    url = (
+        f'https://accounts.google.com/o/oauth2/v2/auth'
+        f'?client_id={client_id}'
+        f'&redirect_uri={redirect_uri}'
+        f'&response_type=code'
+        f'&scope={scope}'
+        f'&state={state}'
+    )
+    return redirect(url)
+
+def google_callback(request):
+    code = request.GET.get('code')
+    if not code:
+        return render(request, 'account/login.html', {'error': 'Erro no login com Google.'})
+
+    token_url = 'https://oauth2.googleapis.com/token'
+    redirect_uri = 'https://zany-goggles-94w6qq9v55g2w55-8000.app.github.dev/users/google/callback/'
+    data = {
+        'code': code,
+        'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+        'client_secret': os.getenv('GOOGLE_CLIENT_SECRET'),
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code',
+    }
+    token_response = requests.post(token_url, data=data)
+    token_json = token_response.json()
+    
+    # Debug: imprimir resposta do token
+    print('Token response:', token_json)
+    
+    access_token = token_json.get('access_token')
+    
+    if not access_token:
+        print('Erro: access_token não encontrado')
+        return render(request, 'account/login.html', {'error': 'Erro ao obter token do Google.'})
+
+    user_info_url = 'https://www.googleapis.com/oauth2/v1/userinfo'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    user_info_response = requests.get(user_info_url, headers=headers)
+    user_info = user_info_response.json()
+    
+    # Debug: imprimir informações do usuário
+    print('User info:', user_info)
+
+    email = user_info.get('email')
+    first_name = user_info.get('given_name')
+    last_name = user_info.get('family_name')
+
+    if not email:
+        return render(request, 'account/login.html', {'error': 'Não foi possível obter o e-mail do Google. Verifique as permissões.'})
+
+    user, created = User.objects.get_or_create(email=email, defaults={
+        'username': email.split('@')[0],
+        'first_name': first_name,
+        'last_name': last_name,
+    })
+    
+    print(f'Usuario {"criado" if created else "encontrado"}: {user.username} ({user.email})')
+
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, user)
+    
+    print(f'Usuario autenticado: {request.user.is_authenticated}')
+    
+    return redirect('home')

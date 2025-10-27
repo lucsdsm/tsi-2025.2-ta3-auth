@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
     <style>
          * {
             margin: 0;
@@ -68,7 +67,7 @@
             gap: 8px;
             margin-bottom: 15px;
         }
-        button[type="submit"] {
+        button {
             width: 100%;
             padding: 12px;
             background: #667eea;
@@ -79,7 +78,7 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        button[type="submit"]:hover {
+        button::hover {
             background: #5568d3;
         }
         .links {
@@ -108,26 +107,29 @@
 </head>
 <body>
     <div class="container">
-    <h1>🐾 PetShop SignUp</h1>
     <form action="{% url 'create_user' %}" method="post">
         {% csrf_token %}
         <div>
             <label for="username">Nome de Usuário:</label>
             <input type="text" id="username" name="username" required>
-        </div>
+        </div> <br>
         <div>
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
         </div>
-        <div>
+        <div> <br>
             <label for="password">Senha:</label>
             <input type="password" id="password" name="password" required>
         </div>
-        <br>
-        <button type="submit">Cadastrar</button>
+        <br> 
+        <button type="submit">Cadastrar</button> <br>
+        <div class="links">
+            <a href="{% url 'account_login' %}">Já tem uma conta? Faça login</a> | 
+            <a href="{% url 'home' %}">Voltar</a>
+        </div>
     </form>
     {% if error %}
-    <p style="color: red;">{{ error }}</p>
+    <br> <p style="color: red; text-align: center">{{ error }}</p>
     {% endif %}
     </div>
 </body>
