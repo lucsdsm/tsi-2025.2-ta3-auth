@@ -38,9 +38,6 @@ def home(request):
     headers = {'Authorization': f'Bearer {access_token}'}
     user_info_response = requests.get(user_info_url, headers=headers)
     user_info = user_info_response.json()
-    
-    # Debug: imprimir informações do usuário
-    print('User info:', user_info)
 
     email = user_info.get('email')
     first_name = user_info.get('given_name')

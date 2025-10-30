@@ -70,8 +70,6 @@ def google_callback(request):
     - Conflitos de username
     - Validações customizadas em validate_google_user()
     """
-    print(f'[DEBUG] Google callback chamado! GET params: {request.GET}')
-    print(f'[DEBUG] Full path: {request.get_full_path()}')
     
     code = request.GET.get('code')
     
