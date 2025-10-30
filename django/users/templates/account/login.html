@@ -129,10 +129,60 @@
             font-size: 14px;
             margin-top: 5px;
         }
+        .alert {
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .alert-error {
+            background: #ffebee;
+            border-left: 4px solid #d32f2f;
+            color: #b71c1c;
+        }
+        .alert-warning {
+            background: #fff3e0;
+            border-left: 4px solid #f57c00;
+            color: #e65100;
+        }
+        .alert-success {
+            background: #e8f5e9;
+            border-left: 4px solid #388e3c;
+            color: #1b5e20;
+        }
+        .alert-info {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            color: #0d47a1;
+        }
+        .alert svg {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+        }
+        .alert-message {
+            flex: 1;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        
+        <h1>🔐 Fazer Login</h1>
+        
+        {% if error %}
+            <div class="alert alert-error">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <div class="alert-message">{{ error }}</div>
+            </div>
+        {% endif %}
         
         <!-- Botão Google usando URL direta -->
         <a href="{% url 'google_login' %}" class="google-btn">
@@ -147,14 +197,21 @@
             {% csrf_token %}
             
             {% if form.non_field_errors %}
-                <div class="error">{{ form.non_field_errors }}</div>
+                <div class="alert alert-error">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="alert-message">{{ form.non_field_errors }}</div>
+                </div>
             {% endif %}
 
             <div class="form-group">
                 <label for="login">Usuário ou Email</label>
                 <input type="text" name="login" id="login" required>
                 {% if form.login.errors %}
-                    <div class="error">{{ form.login.errors }}</div>
+                    <div class="alert alert-error" style="margin-top: 5px; padding: 8px 10px;">
+                        {{ form.login.errors }}
+                    </div>
                 {% endif %}
             </div>
 
@@ -162,7 +219,9 @@
                 <label for="password">Senha</label>
                 <input type="password" name="password" id="password" required>
                 {% if form.password.errors %}
-                    <div class="error">{{ form.password.errors }}</div>
+                    <div class="alert alert-error" style="margin-top: 5px; padding: 8px 10px;">
+                        {{ form.password.errors }}
+                    </div>
                 {% endif %}
             </div>
 

@@ -31,6 +31,7 @@ Configuração no Google Cloud Console:
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, get_user_model
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .utils import (
     get_google_auth_url,
     exchange_code_for_token,
@@ -55,27 +56,35 @@ def google_callback(request):
     """
     Recebe o callback do Google após autenticação.
     
-    Fluxo:
+    Fluxo inteligente:
     1. Recebe o código de autorização
     2. Troca o código por um access_token
     3. Usa o token para obter informações do usuário
-    4. Valida e cria/autentica o usuário
-    5. Redireciona para a home
+    4. Verifica se já existe usuário com este email:
+       - Se existe: conecta nele (mesmo criado localmente)
+       - Se não existe: cria novo e redireciona para definir senha
+    5. Autentica e redireciona
     
-    Validações customizadas podem ser adicionadas em validate_google_user()
+    Validações:
+    - Email verificado no Google
+    - Conflitos de username
+    - Validações customizadas em validate_google_user()
     """
+    print(f'[DEBUG] Google callback chamado! GET params: {request.GET}')
+    print(f'[DEBUG] Full path: {request.get_full_path()}')
+    
     code = request.GET.get('code')
     
     if not code:
+        error_msg = request.GET.get('error', 'Código não fornecido')
         return render(request, 'account/login.html', {
-            'error': 'Erro no login com Google: código não fornecido.'
+            'error': f'Erro no login com Google: {error_msg}'
         })
 
     # Troca o código por um access token
     token_data = exchange_code_for_token(code)
     
     if not token_data or 'access_token' not in token_data:
-        print('Erro ao obter token:', token_data)
         return render(request, 'account/login.html', {
             'error': 'Erro ao obter token do Google.'
         })
@@ -90,9 +99,8 @@ def google_callback(request):
             'error': 'Erro ao obter informações do usuário.'
         })
 
-    print('Google user info:', user_info)
-
     email = user_info.get('email')
+    email_verified = user_info.get('verified_email', False)
     first_name = user_info.get('given_name', '')
     last_name = user_info.get('family_name', '')
 
@@ -101,27 +109,126 @@ def google_callback(request):
             'error': 'Não foi possível obter o e-mail do Google.'
         })
 
+    # VALIDAÇÃO: Email deve estar verificado no Google
+    if not email_verified:
+        return render(request, 'account/login.html', {
+            'error': 'Seu e-mail não está verificado no Google. Por favor, verifique seu e-mail antes de continuar.'
+        })
+
     # Validações customizadas (pode-se modificar em utils.py)
     validation_error = validate_google_user(email, user_info)
     if validation_error:
         return render(request, 'account/login.html', {'error': validation_error})
 
-    # Cria ou busca o usuário
-    user, created = User.objects.get_or_create(
-        email=email,
-        defaults={
-            'username': email.split('@')[0],
-            'first_name': first_name,
-            'last_name': last_name,
-        }
-    )
-    
-    print(f'Usuário {"criado" if created else "encontrado"}: {user.username} ({user.email})')
+    # Verifica se já existe usuário com este email
+    try:
+        user = User.objects.get(email=email)
+        created = False
+        
+        # Atualiza informações do Google se estiverem vazias
+        if not user.first_name and first_name:
+            user.first_name = first_name
+        if not user.last_name and last_name:
+            user.last_name = last_name
+        user.save()
+        
+    except User.DoesNotExist:
+        # Usuário não existe, vamos criar
+        created = True
+        
+        # Gera username único baseado no email
+        base_username = email.split('@')[0]
+        username = base_username
+        counter = 1
+        
+        # Garante username único
+        while User.objects.filter(username=username).exists():
+            username = f'{base_username}{counter}'
+            counter += 1
+        
+        user = User.objects.create(
+            username=username,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+        )
+        # Marca explicitamente que o usuário não tem senha
+        user.set_unusable_password()
+        user.save()
 
     # Autentica o usuário
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, user)
     
-    print(f'Usuário autenticado: {request.user.is_authenticated}')
+    # Se for um novo usuário OU usuário sem senha, redireciona para criar senha
+    if created or not user.has_usable_password():
+        return redirect('google_setup_password')
     
+    # Usuário existente com senha, vai direto para home
     return redirect('home')
+
+
+@ensure_csrf_cookie
+def google_setup_password(request):
+    """
+    Página para novos usuários do Google criarem uma senha.
+    
+    Após login inicial com Google, usuários sem senha são redirecionados
+    aqui para definir uma senha local, permitindo login tradicional futuro.
+    
+    Validações:
+    - Usuário deve estar autenticado
+    - Senha mínima de 8 caracteres
+    - Confirmação de senha
+    - Senhas devem bater
+    """
+    # Verifica se usuário está logado
+    if not request.user.is_authenticated:
+        return redirect('local_login')
+    
+    # Se usuário já tem senha, redireciona para home
+    if request.user.has_usable_password():
+        return redirect('home')
+    
+    print(f'[INFO] Mostrando formulário de setup de senha')
+    
+    print(f'[INFO] Mostrando formulário de setup de senha')
+    
+    error_message = None
+    
+    if request.method == 'POST':
+        password = request.POST.get('password', '').strip()
+        password_confirm = request.POST.get('password_confirm', '').strip()
+        
+        # Validações
+        if not password or not password_confirm:
+            error_message = '❌ Todos os campos são obrigatórios.'
+        
+        elif len(password) < 8:
+            error_message = '❌ A senha deve ter pelo menos 8 caracteres.'
+        
+        elif len(password) > 128:
+            error_message = '❌ A senha não pode ter mais de 128 caracteres.'
+        
+        elif password != password_confirm:
+            error_message = '❌ As senhas não coincidem. Verifique os valores.'
+        
+        elif password == request.user.email:
+            error_message = '❌ A senha não pode ser igual ao seu email.'
+        
+        if error_message is None:
+            # Define a senha do usuário
+            request.user.set_password(password)
+            request.user.save()
+            
+            # Re-autentica o usuário (necessário após mudar senha)
+            user = request.user
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            
+            return redirect('home')
+    
+    return render(request, 'account/setup_password.html', {
+        'error': error_message,
+        'user': request.user
+    })

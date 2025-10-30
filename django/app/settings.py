@@ -34,9 +34,19 @@ ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
     'https://*.app.github.dev',
     'https://zany-goggles-94w6qq9v55g2w55-8000.app.github.dev',
+    'https://paranormal-incantation-rvw7rrg979jcxvqr-8000.app.github.dev',
     'http://localhost:8000',
     'https://localhost:8000'
 ]
+
+# Configurações de CSRF para ambientes de desenvolvimento
+CSRF_COOKIE_SECURE = False  # True apenas em produção com HTTPS real
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_USE_SESSIONS = False  # Garante que o token CSRF seja enviado via cookie
+CSRF_COOKIE_NAME = 'csrftoken'
+SESSION_COOKIE_SECURE = False  # True apenas em produção com HTTPS real
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Application definition
 
@@ -59,6 +69,7 @@ AUTHENTICATION_BACKENDS = [
 # Forçar uso de HTTPS e do domínio correto
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 SITE_ID = 1
 

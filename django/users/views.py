@@ -28,9 +28,6 @@ def home(request):
     token_response = requests.post(token_url, data=data)
     token_json = token_response.json()
     
-    # Debug: imprimir resposta do token
-    print('Token response:', token_json)
-    
     access_token = token_json.get('access_token')
     
     if not access_token:

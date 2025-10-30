@@ -8,24 +8,25 @@ Contém toda a lógica de comunicação com a API do Google.
 import os
 import requests
 from secrets import token_urlsafe
+from urllib.parse import urlencode
 
 
 # ============================================
-# CONFIGURAÇÕES 
+# Configurações 
 # ============================================
 
 def get_redirect_uri():
     """
     Retorna a URI de redirecionamento configurada.
     
-    IMPORTANTE: Atualize esta URL para corresponder ao domínio.
+    IMPORTANTE: Atualizar esta URL para corresponder ao domínio.
     Esta mesma URL deve estar registrada no Google Cloud Console.
     """
     # Para desenvolvimento local:
     # return 'http://localhost:8000/auth/google/callback/'
     
     # Para produção/Codespaces:
-    return 'https://zany-goggles-94w6qq9v55g2w55-8000.app.github.dev/users/google/callback/'
+    return 'https://paranormal-incantation-rvw7rrg979jcxvqr-8000.app.github.dev/users/google/callback/'
 
 
 def get_google_credentials():
@@ -42,7 +43,7 @@ def get_google_credentials():
     }
 
 # ============================================
-# FUNÇÕES PRINCIPAIS
+# Funções principais
 # ============================================
 
 def get_google_auth_url():
@@ -66,9 +67,9 @@ def get_google_auth_url():
         'state': state,
     }
     
-    # Constrói a URL
+    # Constrói a URL com encoding correto
     base_url = 'https://accounts.google.com/o/oauth2/v2/auth'
-    query_string = '&'.join([f'{k}={v}' for k, v in params.items()])
+    query_string = urlencode(params)
     
     return f'{base_url}?{query_string}'
 
@@ -127,18 +128,18 @@ def get_user_info_from_google(access_token):
 
 
 # ============================================
-# VALIDAÇÕES CUSTOMIZADAS
+# Validações customizadas
 # ============================================
 
 def validate_google_user(email, user_info):
     """
     Valida o usuário antes de criar/autenticar.
 
-    Aqui pode-se adicionar suas próprias regras de negócio:
-    - Bloquear domínios específicos
-    - Exigir domínio corporativo
-    - Verificar lista negra
-    - Validar informações adicionais
+    Validações implementadas:
+    - Formato de email válido
+    - Domínios bloqueados (opcional)
+    - Domínios permitidos (opcional - comentado)
+    - Email verificado no Google (validado na view)
     
     Args:
         email (str): Email do usuário
@@ -147,22 +148,43 @@ def validate_google_user(email, user_info):
     Returns:
         str: Mensagem de erro se inválido, None se válido
     """
-    # Exemplo: Bloquear emails de determinados domínios
-    # blocked_domains = ['example.com', 'spam.com']
-    # domain = email.split('@')[1]
-    # if domain in blocked_domains:
-    #     return f'Emails do domínio {domain} não são permitidos.'
+    import re
     
-    # Exemplo: Aceitar apenas emails corporativos
-    # allowed_domain = 'suaempresa.com'
-    # if not email.endswith(f'@{allowed_domain}'):
+    # Validação básica de formato de email
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(email_pattern, email):
+        return 'Formato de email inválido.'
+    
+    # Validação: Email não pode ser muito longo
+    if len(email) > 254:  # RFC 5321
+        return 'Email muito longo.'
+    
+    # Bloquear domínios temporários/descartáveis
+    # blocked_domains = [
+    #     'tempmail.com',
+    #     'throwaway.email',
+    #     'guerrillamail.com',
+    #     '10minutemail.com',
+    #     # Adicionar outros domínios descartáveis se necessário
+    # ]
+    
+    # domain = email.split('@')[1].lower()
+    # if domain in blocked_domains:
+    #     return f'Emails temporários ou descartáveis não são permitidos.'
+    
+    # Aceitar apenas emails de domínios específicos (descomente se necessário)
+    # allowed_domains = ['suaempresa.com', 'parceiro.com']
+    # if domain not in allowed_domains:
     #     return 'Apenas emails corporativos são permitidos.'
     
-    # Exemplo: Verificar se email já existe (comentado pois get_or_create já trata)
-    # from django.contrib.auth import get_user_model
-    # User = get_user_model()
-    # if User.objects.filter(email=email).exists():
-    #     return 'Email já cadastrado no sistema.'
+    # EXEMPLO: Bloquear domínios específicos
+    # blocked_specific = ['competitor.com']
+    # if domain in blocked_specific:
+    #     return 'Este domínio não é permitido.'
+    
+    # Verifica se há picture/foto (usuários reais geralmente têm)
+    # if not user_info.get('picture'):
+    #     print(f'[WARNING] Usuário {email} não tem foto de perfil no Google')
     
     # Se passar todas as validações, retorna None (sem erro)
     return None
