@@ -1,6 +1,6 @@
-# 🐾 PetShop - Sistema de Autenticação e Gerenciamento de Pets
+# Sistema de Autenticação e Gerenciamento de animais
 
-Sistema completo desenvolvido em Django para gerenciamento de usuários e pets, incluindo autenticação local e via Google OAuth2.
+Sistema desenvolvido em Django para gerenciamento de usuários e pets, incluindo autenticação local e via Google OAuth2.
 
 ## 🚀 Funcionalidades
 
@@ -49,7 +49,7 @@ O sistema permite que usuários cadastrem e gerenciem seus pets com os seguintes
 
 ## 🏗️ Arquitetura
 
-### Estrutura de Apps
+### Estrutura de arquivos:
 
 ```
 django/
@@ -73,7 +73,7 @@ django/
     └── templates/         # Templates de pets
 ```
 
-### Modelos de Dados
+### Modelos de Dados:
 
 #### User (users/models.py)
 - Username (único)
