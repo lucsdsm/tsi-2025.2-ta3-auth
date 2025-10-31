@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Pets - PetShop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-edit {
+            background: #ffc107;
+            color: #333;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .pet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .pet-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .pet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .pet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        .pet-name {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+        }
+        .pet-icon {
+            font-size: 36px;
+        }
+        .pet-info {
+            margin: 10px 0;
+            color: #666;
+        }
+        .pet-info-item {
+            display: flex;
+            gap: 10px;
+            margin: 8px 0;
+        }
+        .pet-info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .pet-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .empty-state {
+            background: white;
+            padding: 60px 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        .empty-state h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .empty-state p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐾 Meus Pets</h1>
+            <div class="nav-links">
+                <a href="{% url 'home' %}" class="btn btn-secondary">← Voltar</a>
+                <a href="{% url 'animal_create' %}" class="btn btn-primary">+ Cadastrar Novo Pet</a>
+            </div>
+        </header>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if animais %}
+        <div class="pet-grid">
+            {% for animal in animais %}
+            <div class="pet-card">
+                <div class="pet-header">
+                    <div>
+                        <div class="pet-name">{{ animal.nome }}</div>
+                        <div style="color: #888; font-size: 14px;">{{ animal.raca.nome }}</div>
+                    </div>
+                    <div class="pet-icon">{{ animal.tipo_animal.icone }}</div>
+                </div>
+                
+                <div class="pet-info">
+                    <div class="pet-info-item">
+                        <span class="pet-info-label">Tipo:</span>
+                        <span>{{ animal.tipo_animal.nome }}</span>
+                    </div>
+                    <div class="pet-info-item">
+                        <span class="pet-info-label">Sexo:</span>
+                        <span>{{ animal.get_sexo_display_icon }} {{ animal.get_sexo_display }}</span>
+                    </div>
+                    {% if animal.data_nascimento %}
+                    <div class="pet-info-item">
+                        <span class="pet-info-label">Idade:</span>
+                        <span>{{ animal.idade_anos }} {% if animal.idade_anos == 1 %}ano{% else %}anos{% endif %}</span>
+                    </div>
+                    {% endif %}
+                    {% if animal.observacoes %}
+                    <div class="pet-info-item">
+                        <span class="pet-info-label">Obs:</span>
+                        <span>{{ animal.observacoes|truncatewords:15 }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="pet-actions">
+                    <a href="{% url 'animal_update' animal.pk %}" class="btn btn-edit">✏️ Editar</a>
+                    <a href="{% url 'animal_delete' animal.pk %}" class="btn btn-delete">🗑️ Excluir</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🐕</div>
+            <h2>Você ainda não tem pets cadastrados</h2>
+            <p>Cadastre seu primeiro pet para começar a gerenciar seus animaizinhos!</p>
+            <a href="{% url 'animal_create' %}" class="btn btn-primary">+ Cadastrar Primeiro Pet</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -141,13 +141,31 @@
         
         <div class="buttons">
             {% if user.is_authenticated %}
-                <a href="#" class="btn btn-primary">Meus Pets</a>
+                <a href="{% url 'animal_list' %}" class="btn btn-primary">Meus Pets</a>
                 <a href="#" class="btn btn-secondary">Agendar Consulta</a>
             {% else %}
                 <a href="{% url 'local_login' %}" class="btn btn-primary">Entrar</a>
                 <a href="{% url 'local_signup' %}" class="btn btn-secondary">Criar Conta</a>
             {% endif %}
         </div>
+
+        {% if user.is_authenticated and user_pets %}
+        <div style="margin-top: 40px; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px);">
+            <h2 style="margin-bottom: 20px;">🐕 Seus Pets ({{ user_pets.count }})</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+                {% for pet in user_pets %}
+                <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">{{ pet.tipo_animal.icone }}</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">{{ pet.nome }}</div>
+                    <div style="font-size: 14px; opacity: 0.9;">{{ pet.raca.nome }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="margin-top: 20px;">
+                <a href="{% url 'animal_list' %}" class="btn btn-secondary">Ver Todos os Pets →</a>
+            </div>
+        </div>
+        {% endif %}
 
         <div class="features">
             <div class="feature">

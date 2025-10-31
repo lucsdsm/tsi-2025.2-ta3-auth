@@ -11,7 +11,15 @@ from django.shortcuts import render
 
 def home(request):
     """Página inicial da aplicação"""
-    return render(request, 'home.html')
+    context = {}
+    
+    # Se o usuário está autenticado, buscar seus pets
+    if request.user.is_authenticated:
+        from pets.models import Animal
+        user_pets = Animal.objects.filter(proprietario=request.user, ativo=True)[:6]  # Limitar a 6 pets
+        context['user_pets'] = user_pets
+    
+    return render(request, 'home.html', context)
     code = request.GET.get('code')
     if not code:
         return render(request, 'account/login.html', {'error': 'Erro no login com Google.'})

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if object %}Editar{% else %}Cadastrar{% endif %} Pet - PetShop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .form-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea {
+            resize: vertical;
+        }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .radio-option label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+        }
+        .errorlist li {
+            color: #dc3545;
+            font-size: 14px;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .alert-error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+        .help-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <h1>{% if object %}🐾 Editar Pet: {{ object.nome }}{% else %}🐾 Cadastrar Novo Pet{% endif %}</h1>
+
+            {% if form.errors %}
+            <div class="alert alert-error">
+                <strong>❌ Erro ao salvar:</strong>
+                <ul class="errorlist">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_nome">Nome do Pet *</label>
+                    {{ form.nome }}
+                    {% if form.nome.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.nome.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_tipo_animal">Tipo de Animal *</label>
+                    {{ form.tipo_animal }}
+                    {% if form.tipo_animal.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.tipo_animal.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_raca">Raça *</label>
+                    {{ form.raca }}
+                    {% if form.raca.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.raca.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Sexo *</label>
+                    <div class="radio-group">
+                        {% for value, label in form.sexo.field.choices %}
+                        <div class="radio-option">
+                            <input type="radio" name="sexo" value="{{ value }}" id="id_sexo_{{ value }}" 
+                                   {% if form.sexo.value == value %}checked{% endif %}>
+                            <label for="id_sexo_{{ value }}">
+                                {% if value == 'M' %}♂️{% elif value == 'F' %}♀️{% endif %} {{ label }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.sexo.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.sexo.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_data_nascimento">Data de Nascimento</label>
+                    {{ form.data_nascimento }}
+                    <div class="help-text">Usado para calcular a idade do pet</div>
+                    {% if form.data_nascimento.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.data_nascimento.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_observacoes">Observações</label>
+                    {{ form.observacoes }}
+                    <div class="help-text">Informações adicionais sobre o pet (alergias, medicamentos, etc.)</div>
+                    {% if form.observacoes.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.observacoes.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'animal_list' %}" class="btn btn-secondary">← Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        {% if object %}💾 Salvar Alterações{% else %}➕ Cadastrar Pet{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Carregar raças dinamicamente baseado no tipo de animal selecionado
+        const tipoAnimalSelect = document.getElementById('id_tipo_animal');
+        const racaSelect = document.getElementById('id_raca');
+        const racaOriginalValue = racaSelect.value;
+
+        tipoAnimalSelect.addEventListener('change', function() {
+            const tipoId = this.value;
+            
+            if (!tipoId) {
+                racaSelect.innerHTML = '<option value="">---------</option>';
+                racaSelect.disabled = true;
+                return;
+            }
+
+            // Fazer requisição para buscar raças
+            fetch(`/pets/api/racas-por-tipo/?tipo_id=${tipoId}`, {
+                method: 'GET',
+                credentials: 'same-origin',  // Incluir cookies de sessão
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao buscar raças');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    racaSelect.innerHTML = '<option value="">---------</option>';
+                    // A API retorna um array direto, não um objeto com 'racas'
+                    data.forEach(raca => {
+                        const option = document.createElement('option');
+                        option.value = raca.id;
+                        option.textContent = raca.nome;
+                        racaSelect.appendChild(option);
+                    });
+                    racaSelect.disabled = false;
+                    
+                    // Se está editando, manter a raça selecionada
+                    if (racaOriginalValue) {
+                        racaSelect.value = racaOriginalValue;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar raças:', error);
+                    racaSelect.innerHTML = '<option value="">Erro ao carregar raças</option>';
+                });
+        });
+
+        // Carregar raças na inicialização se houver tipo selecionado
+        if (tipoAnimalSelect.value) {
+            tipoAnimalSelect.dispatchEvent(new Event('change'));
+        }
+    </script>
+</body>
+</html>

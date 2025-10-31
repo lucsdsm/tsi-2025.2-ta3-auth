@@ -52,6 +52,7 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 
 INSTALLED_APPS = [
     "users",
+    "pets",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
