@@ -6,7 +6,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # URLs de Animal (Pet)
+    # URLs de Animal
     path('animais/', views.AnimalListView.as_view(), name='animal_list'),
     path('animais/novo/', views.AnimalCreateView.as_view(), name='animal_create'),
     path('animais/<int:pk>/editar/', views.AnimalUpdateView.as_view(), name='animal_update'),

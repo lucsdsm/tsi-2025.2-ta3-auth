@@ -18,7 +18,7 @@ from .models import TipoAnimal, Raca, Animal
 
 
 # ====================================
-# VIEWS DE ANIMAL (PET)
+# Views de animal (pet)
 # ====================================
 
 class AnimalListView(LoginRequiredMixin, ListView):
@@ -103,7 +103,7 @@ class AnimalDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 
 # ====================================
-# VIEWS DE TIPO DE ANIMAL
+# Views de tipo de animal
 # ====================================
 
 class TipoAnimalListView(LoginRequiredMixin, ListView):
@@ -132,7 +132,7 @@ class TipoAnimalCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
 
 # ====================================
-# VIEWS DE RAÇA
+# Views de Raça
 # ====================================
 
 class RacaListView(LoginRequiredMixin, ListView):
