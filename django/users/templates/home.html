@@ -131,6 +131,9 @@
     {% if user.is_authenticated %}
     <div class="user-info">
         <span>👋 Olá, {{ user.username }}!</span>
+        {% if user.is_staff %}
+        <a href="{% url 'panel:dashboard' %}">Painel Admin</a>
+        {% endif %}
         <a href="{% url 'local_logout' %}">Sair</a>
     </div>
     {% endif %}

@@ -55,6 +55,7 @@ SESSION_COOKIE_SAMESITE = 'None'  # None para funcionar em iframes/codespaces
 INSTALLED_APPS = [
     "users",
     "pets",
+    "panel",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

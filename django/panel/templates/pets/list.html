@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Pets Cadastrados{% endblock %}
+{% block breadcrumb %}Dashboard / Pets{% endblock %}
+{% block content %}
+<h1 style="color: #2c3e50; margin-bottom: 30px;">🐾 Pets Cadastrados no Sistema</h1>
+<div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
+    <form method="get" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 15px;">
+        <input type="text" name="search" value="{{ search }}" placeholder="Buscar por nome ou proprietário..." style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px;">
+        <select name="tipo" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px;">
+            <option value="">Todos os tipos</option>
+            {% for tipo in tipos_animais %}
+            <option value="{{ tipo.id }}" {% if tipo_filter == tipo.id|stringformat:"s" %}selected{% endif %}>{{ tipo.nome }}</option>
+            {% endfor %}
+        </select>
+        <select name="status" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px;">
+            <option value="">Todos</option>
+            <option value="ativo" {% if status_filter == 'ativo' %}selected{% endif %}>Ativos</option>
+            <option value="inativo" {% if status_filter == 'inativo' %}selected{% endif %}>Inativos</option>
+        </select>
+        <button type="submit" class="btn btn-primary">🔍 Filtrar</button>
+    </form>
+</div>
+<div style="background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead style="background: #f8f9fa;">
+            <tr>
+                <th style="padding: 15px; text-align: left;">Pet</th>
+                <th style="padding: 15px; text-align: left;">Tipo / Raça</th>
+                <th style="padding: 15px; text-align: left;">Proprietário</th>
+                <th style="padding: 15px; text-align: left;">Sexo</th>
+                <th style="padding: 15px; text-align: left;">Cadastrado em</th>
+                <th style="padding: 15px; text-align: left;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pet in pets %}
+            <tr style="border-bottom: 1px solid #f5f5f5;">
+                <td style="padding: 15px; font-weight: 600;">{{ pet.nome }}</td>
+                <td style="padding: 15px;">
+                    <div>{{ pet.tipo_animal.icone }} {{ pet.tipo_animal.nome }}</div>
+                    <div style="font-size: 12px; color: #7f8c8d;">{{ pet.raca.nome }}</div>
+                </td>
+                <td style="padding: 15px;">
+                    <div>{{ pet.proprietario.username }}</div>
+                    <div style="font-size: 12px; color: #7f8c8d;">{{ pet.proprietario.email }}</div>
+                </td>
+                <td style="padding: 15px;">{% if pet.sexo == 'M' %}♂️ Macho{% else %}♀️ Fêmea{% endif %}</td>
+                <td style="padding: 15px;">{{ pet.criado_em|date:"d/m/Y" }}</td>
+                <td style="padding: 15px;">
+                    {% if pet.ativo %}
+                        <span style="background: #d4edda; color: #155724; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✓ Ativo</span>
+                    {% else %}
+                        <span style="background: #f8d7da; color: #721c24; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✗ Inativo</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: #7f8c8d; padding: 40px;">Nenhum pet cadastrado</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
