@@ -39,14 +39,16 @@ CSRF_TRUSTED_ORIGINS = [
     'https://localhost:8000'
 ]
 
-# Configurações de CSRF para ambientes de desenvolvimento
-CSRF_COOKIE_SECURE = False  # True apenas em produção com HTTPS real
+# Configurações de CSRF para ambientes de desenvolvimento (GitHub Codespaces)
+# SameSite=None requer Secure=True, mesmo em dev (Codespaces usa HTTPS)
+CSRF_COOKIE_SECURE = True  # True porque Codespaces usa HTTPS
 CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'None'  # None para funcionar em iframes/codespaces
 CSRF_USE_SESSIONS = False  # Garante que o token CSRF seja enviado via cookie
 CSRF_COOKIE_NAME = 'csrftoken'
-SESSION_COOKIE_SECURE = False  # True apenas em produção com HTTPS real
-SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_DOMAIN = None  # Permite o domínio do GitHub Codespaces
+SESSION_COOKIE_SECURE = True  # True porque Codespaces usa HTTPS
+SESSION_COOKIE_SAMESITE = 'None'  # None para funcionar em iframes/codespaces
 
 # Application definition
 
