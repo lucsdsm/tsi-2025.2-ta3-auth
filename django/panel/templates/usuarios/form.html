@@ -73,6 +73,14 @@
         color: #dc3545;
         font-size: 14px;
     }
+    
+    .vet-info {
+        display: none;
+    }
+    
+    .vet-info.show {
+        display: block;
+    }
 </style>
 {% endblock %}
 
@@ -134,6 +142,63 @@
         </div>
         
         <div class="form-group">
+            <label for="id_user_type">Tipo de Usuário *</label>
+            {{ form.user_type }}
+            {% if form.user_type.errors %}
+                <ul class="errorlist">
+                    {% for error in form.user_type.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_telefone">Telefone</label>
+            {{ form.telefone }}
+            {% if form.telefone.errors %}
+                <ul class="errorlist">
+                    {% for error in form.telefone.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        
+        <div class="vet-info" id="vetInfo">
+            <div style="background: #d1ecf1; border-left: 4px solid #0c5460; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <strong>🩺 Informações Veterinárias</strong>
+                <p style="margin: 5px 0 0 0; font-size: 14px;">Preencha as informações do veterinário</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_crmv">CRMV</label>
+                {{ form.crmv }}
+                {% if form.crmv.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.crmv.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <small style="color: #7f8c8d;">Ex: SP-12345</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_especialidade">Especialidade</label>
+                {{ form.especialidade }}
+                {% if form.especialidade.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.especialidade.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <small style="color: #7f8c8d;">Ex: Clínica Geral, Cirurgia, Dermatologia</small>
+            </div>
+        </div>
+        
+        <div class="form-group">
             <label style="margin-bottom: 15px;">Permissões</label>
             <div class="checkbox-group">
                 {{ form.is_staff }}
@@ -159,4 +224,24 @@
         </div>
     </form>
 </div>
+
+<script>
+    // Mostra/oculta campos de veterinário baseado no tipo selecionado
+    const userTypeSelect = document.getElementById('id_user_type');
+    const vetInfo = document.getElementById('vetInfo');
+    
+    function toggleVetInfo() {
+        if (userTypeSelect.value === 'VETERINARIO') {
+            vetInfo.classList.add('show');
+        } else {
+            vetInfo.classList.remove('show');
+        }
+    }
+    
+    // Executar ao carregar a página
+    toggleVetInfo();
+    
+    // Executar quando mudar o tipo
+    userTypeSelect.addEventListener('change', toggleVetInfo);
+</script>
 {% endblock %}

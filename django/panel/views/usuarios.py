@@ -32,7 +32,8 @@ class UsuarioListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Q(username__icontains=search) |
                 Q(email__icontains=search) |
                 Q(first_name__icontains=search) |
-                Q(last_name__icontains=search)
+                Q(last_name__icontains=search) |
+                Q(crmv__icontains=search)
             )
         
         # Filtro por status
@@ -42,12 +43,10 @@ class UsuarioListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         elif status == 'inativo':
             queryset = queryset.filter(is_active=False)
         
-        # Filtro por tipo
-        tipo = self.request.GET.get('tipo', '')
-        if tipo == 'staff':
-            queryset = queryset.filter(is_staff=True)
-        elif tipo == 'usuario':
-            queryset = queryset.filter(is_staff=False)
+        # Filtro por tipo de usuário
+        user_type = self.request.GET.get('user_type', '')
+        if user_type:
+            queryset = queryset.filter(user_type=user_type)
         
         return queryset
     
@@ -55,7 +54,8 @@ class UsuarioListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['search'] = self.request.GET.get('search', '')
         context['status_filter'] = self.request.GET.get('status', '')
-        context['tipo_filter'] = self.request.GET.get('tipo', '')
+        context['user_type_filter'] = self.request.GET.get('user_type', '')
+        context['user_type_choices'] = User.USER_TYPE_CHOICES
         return context
 
 
@@ -63,11 +63,18 @@ class UsuarioCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     """Criação de novo usuário pelo admin"""
     model = User
     template_name = 'usuarios/form.html'
-    fields = ['username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active']
+    fields = ['username', 'email', 'first_name', 'last_name', 'user_type', 'telefone', 'crmv', 'especialidade', 'is_staff', 'is_active']
     success_url = reverse_lazy('panel:usuarios_list')
     
     def test_func(self):
         return self.request.user.is_staff
+    
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Adicionar classes CSS para melhorar apresentação
+        for field_name, field in form.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+        return form
     
     def form_valid(self, form):
         # Senha padrão temporária
@@ -86,11 +93,18 @@ class UsuarioUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Edição de usuário existente"""
     model = User
     template_name = 'usuarios/form.html'
-    fields = ['username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active']
+    fields = ['username', 'email', 'first_name', 'last_name', 'user_type', 'telefone', 'crmv', 'especialidade', 'is_staff', 'is_active']
     success_url = reverse_lazy('panel:usuarios_list')
     
     def test_func(self):
         return self.request.user.is_staff
+    
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Adicionar classes CSS para melhorar apresentação
+        for field_name, field in form.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+        return form
     
     def form_valid(self, form):
         messages.success(

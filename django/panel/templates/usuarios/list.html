@@ -167,7 +167,7 @@
         <div class="filters-grid">
             <div class="form-group">
                 <label for="search">Buscar</label>
-                <input type="text" id="search" name="search" value="{{ search }}" placeholder="Nome, email ou username...">
+                <input type="text" id="search" name="search" value="{{ search }}" placeholder="Nome, email, username ou CRMV...">
             </div>
             <div class="form-group">
                 <label for="status">Status</label>
@@ -178,11 +178,12 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="tipo">Tipo</label>
-                <select id="tipo" name="tipo">
+                <label for="user_type">Tipo de Usuário</label>
+                <select id="user_type" name="user_type">
                     <option value="">Todos</option>
-                    <option value="staff" {% if tipo_filter == 'staff' %}selected{% endif %}>Staff</option>
-                    <option value="usuario" {% if tipo_filter == 'usuario' %}selected{% endif %}>Usuário</option>
+                    {% for value, label in user_type_choices %}
+                    <option value="{{ value }}" {% if user_type_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
@@ -213,8 +214,19 @@
                     {% if usuario.first_name or usuario.last_name %}
                     <div style="font-size: 12px; color: #7f8c8d;">{{ usuario.get_full_name }}</div>
                     {% endif %}
+                    {% if usuario.is_veterinario and usuario.crmv %}
+                    <div style="font-size: 11px; color: #3498db;">
+                        🩺 CRMV: {{ usuario.crmv }}
+                        {% if usuario.especialidade %} - {{ usuario.especialidade }}{% endif %}
+                    </div>
+                    {% endif %}
                 </td>
-                <td>{{ usuario.email }}</td>
+                <td>
+                    {{ usuario.email }}
+                    {% if usuario.telefone %}
+                    <div style="font-size: 12px; color: #7f8c8d;">📞 {{ usuario.telefone }}</div>
+                    {% endif %}
+                </td>
                 <td>
                     {% if usuario.is_active %}
                         <span class="badge badge-success">✓ Ativo</span>
@@ -223,12 +235,14 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if usuario.is_superuser %}
-                        <span class="badge badge-danger">Super Admin</span>
-                    {% elif usuario.is_staff %}
-                        <span class="badge badge-warning">Staff</span>
+                    {% if usuario.user_type == 'ADMIN' %}
+                        <span class="badge badge-danger">👑 {{ usuario.get_user_type_display }}</span>
+                    {% elif usuario.user_type == 'VETERINARIO' %}
+                        <span class="badge" style="background: #d1ecf1; color: #0c5460;">🩺 {{ usuario.get_user_type_display }}</span>
+                    {% elif usuario.user_type == 'FUNCIONARIO' %}
+                        <span class="badge badge-warning">👔 {{ usuario.get_user_type_display }}</span>
                     {% else %}
-                        <span class="badge badge-info">Usuário</span>
+                        <span class="badge badge-info">👤 {{ usuario.get_user_type_display }}</span>
                     {% endif %}
                 </td>
                 <td>{{ usuario.date_joined|date:"d/m/Y H:i" }}</td>
@@ -262,15 +276,15 @@
     {% if is_paginated %}
     <div class="pagination">
         {% if page_obj.has_previous %}
-            <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if tipo_filter %}&tipo={{ tipo_filter }}{% endif %}">« Primeira</a>
-            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if tipo_filter %}&tipo={{ tipo_filter }}{% endif %}">‹ Anterior</a>
+            <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if user_type_filter %}&user_type={{ user_type_filter }}{% endif %}">« Primeira</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if user_type_filter %}&user_type={{ user_type_filter }}{% endif %}">‹ Anterior</a>
         {% endif %}
         
         <span class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
         
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if tipo_filter %}&tipo={{ tipo_filter }}{% endif %}">Próxima ›</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if tipo_filter %}&tipo={{ tipo_filter }}{% endif %}">Última »</a>
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if user_type_filter %}&user_type={{ user_type_filter }}{% endif %}">Próxima ›</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if user_type_filter %}&user_type={{ user_type_filter }}{% endif %}">Última »</a>
         {% endif %}
     </div>
     {% endif %}
