@@ -6,7 +6,7 @@ from .models import Produto
 def produto_list(request):
 
     produtos = Produto.objects.all()
-    return render(request, 'produtos/produto_list.html', {'produtos': produtos})
+    return render(request, 'produto_list.html', {'produtos': produtos})
 
 
 def add_produto(request):
@@ -14,13 +14,15 @@ def add_produto(request):
         nome = request.POST.get('nome')
         descricao = request.POST.get('descricao')
         preco =  request.POST.get('preco')
+        categoria = request.POST.get('categoria')
         estoque = request.POST.get('estoque')
 
         produto = Produto (
             nome = nome,
             descricao = descricao,
             preco = preco,
-            estoque = estoque
+            estoque = estoque,
+            categoria_id = categoria
         )
         produto.save()
         return render(request, 'produtos/add_produto.html', {'sucesso': True})
