@@ -51,3 +51,4 @@ def delete_produto(request, produto_id):
         return render(request, 'produtos/delete_produto.html', {'sucesso': True})
     except Produto.DoesNotExist:
         return render(request, 'produtos/delete_produto.html', {'erro': 'Produto não encontrado.'})
+
