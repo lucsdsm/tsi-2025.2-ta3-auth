@@ -53,6 +53,7 @@ SESSION_COOKIE_SAMESITE = 'None'  # None para funcionar em iframes/codespaces
 # Application definition
 
 INSTALLED_APPS = [
+    "produtos",
     "users",
     "pets",
     "panel",
