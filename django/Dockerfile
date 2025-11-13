@@ -26,3 +26,6 @@ EXPOSE 8000
 
 # Define o entrypoint
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# Instalar a biblioteca Pillow para manipulação de imagens
+RUN pip install Pillow

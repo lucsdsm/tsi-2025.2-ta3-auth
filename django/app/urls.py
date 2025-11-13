@@ -18,6 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from users.views import home
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("", home, name="home"),
@@ -25,4 +27,9 @@ urlpatterns = [
     path("users/", include("users.urls")),
     path("pets/", include("pets.urls")),
     path("painel-admin/", include("panel.urls")),
+    path("produtos/", include("produtos.urls")),
 ]
+ # servir arquivos de mídia em modo de desenvolvimento
+if settings.DEBUG:
+
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

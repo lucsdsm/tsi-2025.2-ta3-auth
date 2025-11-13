@@ -6,6 +6,7 @@ services:
     container_name: django_petshop
     volumes:
       - ./django:/app
+      - ./django/media:/app/media # adiciona o volume para mídia
     ports:
       - "8000:8000"
     env_file:

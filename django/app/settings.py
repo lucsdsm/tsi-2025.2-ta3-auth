@@ -19,6 +19,11 @@ load_dotenv()  # pega as variáveis do arquivo .env
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# url para servir arquivos de mídia
+MEDIA_URL = '/media/'
+#pasta onde os arquivos de mídia serão salvos
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -53,6 +58,7 @@ SESSION_COOKIE_SAMESITE = 'None'  # None para funcionar em iframes/codespaces
 # Application definition
 
 INSTALLED_APPS = [
+    "produtos",
     "users",
     "pets",
     "panel",
