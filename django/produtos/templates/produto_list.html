@@ -7,6 +7,9 @@
     <title>Lista de Produtos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
      <style>
+    body{
+      background-color: #FFFDD0;
+      }
     .carousel-item {
       display: flex;
       justify-content: center;
@@ -15,6 +18,12 @@
 
     .card {
       width: 250px;
+      max-width: 240px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 0.6rem;
+      scroll-snap-align: start;
     }
 
     .carousel-control-prev-icon,
@@ -30,6 +39,11 @@
     .carousel-inner{
       justify-content: center;
     }
+   .card-img-top{
+    width: 200px;
+    height: 200px;
+    border-radius: 8px;
+   }
   </style>
 </head>
 <body>
@@ -81,7 +95,7 @@
               <div class="col-md-4">
                 <div class="card mb-3">
                   {% if produto.imagem %}
-                    <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}">
+                    <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" class="teste">
                   {% else %}
                     <img src="{% static 'sem_imagem.png' %}" class="card-img-top" alt="Sem imagem">
                   {% endif %}
@@ -89,7 +103,7 @@
                     <h5 class="card-title">{{ produto.nome }}</h5>
                     <p class="card-text">{{ produto.descricao|truncatewords:15 }}</p>
                     <p class="card-text"><strong>R$ {{ produto.preco }}</strong></p>
-                    <a href="#" class="btn btn-primary">Adicionar ao Carrinho</a>
+                    <a href="#" class="btn btn-secondary">Adicionar ao Carrinho</a>
                   </div>
                 </div>
               </div>
