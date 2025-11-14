@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Produto
+from .models import Produto, Categoria
 
 # Create your views here.
 
@@ -10,6 +10,10 @@ def produto_list(request):
 
 
 def add_produto(request):
+# Olhar como add imagens depois
+    
+    categorias = Categoria.objects.all()
+
     if request.method == 'POST':
         nome = request.POST.get('nome')
         descricao = request.POST.get('descricao')
@@ -25,14 +29,14 @@ def add_produto(request):
             categoria_id = categoria
         )
         produto.save()
-        return render(request, 'produtos/add_produto.html', {'sucesso': True})
-    return render(request, 'produtos/add_produto.html')
+        return render(request, 'add_produto.html', {'sucesso': True, 'categorias' : categorias})
+    return render(request, 'add_produto.html',{'categorias' : categorias})
 
 def update_produto(request, produto_id):
     try:
         produto = Produto.objects.get(id=produto_id)
     except Produto.DoesNotExist:
-        return render(request, 'produtos/update_produto.html', {'erro': 'Produto não encontrado.'})
+        return render(request, 'update_produto.html', {'erro': 'Produto não encontrado.'})
     
     if request.method == 'POST':
         produto.nome = request.POST.get('nome')
@@ -40,15 +44,15 @@ def update_produto(request, produto_id):
         produto.preco = request.POST.get('preco')
         produto.estoque = request.POST.get('estoque')
         produto.save()
-        return render(request, 'produtos/update_produto.html', {'produto': produto, 'sucesso': True})
+        return render(request, 'update_produto.html', {'produto': produto, 'sucesso': True})
     
-    return render(request, 'produtos/update_produto.html', {'produto': produto})
+    return render(request, 'update_produto.html', {'produto': produto})
 
 def delete_produto(request, produto_id):
     try:
         produto = Produto.objects.get(id=produto_id)
         produto.delete()
-        return render(request, 'produtos/delete_produto.html', {'sucesso': True})
+        return render(request, 'delete_produto.html', {'sucesso': True})
     except Produto.DoesNotExist:
-        return render(request, 'produtos/delete_produto.html', {'erro': 'Produto não encontrado.'})
+        return render(request, 'delete_produto.html', {'erro': 'Produto não encontrado.'})
 
