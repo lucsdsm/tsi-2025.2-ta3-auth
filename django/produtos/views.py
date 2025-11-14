@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Produto, Categoria
 
 # Create your views here.
@@ -13,6 +13,7 @@ def add_produto(request):
 # Olhar como add imagens depois
     
     categorias = Categoria.objects.all()
+    produtos = Produto.objects.all()
 
     if request.method == 'POST':
         nome = request.POST.get('nome')
@@ -29,8 +30,9 @@ def add_produto(request):
             categoria_id = categoria
         )
         produto.save()
-        return render(request, 'add_produto.html', {'sucesso': True, 'categorias' : categorias})
-    return render(request, 'add_produto.html',{'categorias' : categorias})
+        # return redirect(request, 'add_produto.html', {'sucesso': True, 'categorias' : categorias,'produtos' : produtos})
+        return redirect('add_produto')
+    return render(request, 'add_produto.html',{'categorias' : categorias, 'produtos' : produtos})
 
 def update_produto(request, produto_id):
     try:

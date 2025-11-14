@@ -43,6 +43,16 @@
             <div class="alert-message">{{ sucesso }}</div>
         {%endif%}
    </div>
+   <br>
+   <div class="produtos_cadastrados">
+        <div class="produtos">
+            {% for produto in produtos %}
+
+                <p>{{produto.nome}}</p>
+
+            {% endfor %}
+        </div>
+   </div>
     
 </body>
 </html>
