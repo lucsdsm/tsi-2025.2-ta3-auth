@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{% block title %}PetsLove - PetShop{% endblock %}</title>
+    <style>
+        :root{--primary:#5b6ef6;--accent:#ff7a59;--muted:#6b7280;--card:#ffffff}
+        body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#f6f7fb;margin:0;color:#111}
+        .navbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:linear-gradient(90deg,var(--primary),#8666f2);color:#fff}
+        .nav-left{display:flex;align-items:center;gap:18px}
+        .brand{font-weight:700;font-size:20px}
+        .search{display:flex;align-items:center;background:rgba(255,255,255,0.12);padding:6px;border-radius:8px}
+        .search input{border:0;background:transparent;color:#fff;padding:6px 8px;min-width:220px}
+        .nav-actions{display:flex;align-items:center;gap:12px}
+        .icon-btn{background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;color:#fff;text-decoration:none}
+        .container{max-width:1100px;margin:24px auto;padding:0 18px}
+
+        /* Carousel */
+        .carousel{position:relative;border-radius:10px;overflow:hidden;height:340px;background:#ddd}
+        .carousel img{width:100%;height:340px;object-fit:cover;display:block}
+        .carousel .dots{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;display:flex;gap:8px}
+        .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.6);cursor:pointer}
+        .dot.active{background:var(--accent)}
+        .carousel .arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.35);color:#fff;border:0;padding:10px 12px;border-radius:6px;cursor:pointer;font-size:20px}
+        .carousel .arrow.left{left:12px}
+        .carousel .arrow.right{right:12px}
+
+        /* Grid of cards */
+        .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;margin-top:20px}
+        .card{background:var(--card);border-radius:10px;padding:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06);display:flex;flex-direction:column}
+        .card img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+        .card-body{padding-top:10px;flex:1;display:flex;flex-direction:column}
+        .card-title{font-weight:700;margin-bottom:6px}
+        .card-price{color:var(--accent);font-weight:700;margin-top:auto}
+        .card-actions{display:flex;gap:8px;margin-top:12px}
+        .btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+        .btn-primary{background:var(--primary);color:#fff}
+        .btn-outline{background:transparent;border:1px solid #e6e6e9;color:var(--muted)}
+
+        footer{margin-top:34px;background:#fff;padding:20px;border-radius:8px;text-align:center;color:var(--muted)}
+
+        @media (max-width:600px){.search input{min-width:100px}.carousel{height:220px}.carousel img{height:220px}}
+    </style>
+    {% block extra_head %}{% endblock %}
+    {% block extra_style %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="brand">PetsAmigos</div>
+            <div class="search">
+                <form method="get" action="#" style="display:flex;align-items:center">
+                    <input name="q" placeholder="Pesquisar produtos, raças..." aria-label="Pesquisar">
+                    <button class="icon-btn" type="submit">🔎</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <a class="icon-btn" href="#">🛒 Carrinho</a>
+            <a class="icon-btn" href="#">📜 Histórico</a>
+            <a class="icon-btn" href="/accounts/login/">👤 Login</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div style="max-width:1100px;margin:0 auto;padding:0 18px">
+            <p style="margin:6px 0">© {% now "Y" %} PetsLove — Feito com ❤️</p>
+            <small>Endereço fictício • Telefone: (00) 0000-0000</small>
+        </div>
+    </footer>
+
+    <script>
+        // Carousel with arrows (no auto-advance)
+        (function(){
+            const car = document.querySelector('.carousel');
+            if(!car) return;
+            const imgs = Array.from(car.querySelectorAll('img'));
+            const dots = Array.from(car.querySelectorAll('.dot'));
+            const left = document.createElement('button');
+            const right = document.createElement('button');
+            left.className = 'arrow left'; left.setAttribute('aria-label','Anterior'); left.innerHTML = '‹';
+            right.className = 'arrow right'; right.setAttribute('aria-label','Próximo'); right.innerHTML = '›';
+            car.appendChild(left);
+            car.appendChild(right);
+
+            let idx = 0;
+            function show(i){
+                imgs.forEach((im,j)=> im.style.display = j===i ? 'block':'none');
+                dots.forEach((d,j)=> d.classList.toggle('active', j===i));
+            }
+            show(0);
+
+            left.addEventListener('click', ()=>{
+                idx = (idx - 1 + imgs.length) % imgs.length;
+                show(idx);
+            });
+            right.addEventListener('click', ()=>{
+                idx = (idx + 1) % imgs.length;
+                show(idx);
+            });
+
+            dots.forEach((d,i)=> d.addEventListener('click', ()=>{ idx = i; show(i); }));
+
+            // keyboard support
+            document.addEventListener('keydown', (e)=>{
+                if(e.key === 'ArrowLeft') left.click();
+                if(e.key === 'ArrowRight') right.click();
+            });
+        })();
+    </script>
+    {% block extra_script %}{% endblock %}
+</body>
+</html>

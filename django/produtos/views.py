@@ -36,7 +36,7 @@ def add_produto(request):
 
 def update_produto(request, produto_id):
     try:
-        produto = Produto.objects.get(id=produto_id)
+        produto = Produto.objects.get(produto_id=produto_id)
     except Produto.DoesNotExist:
         return render(request, 'update_produto.html', {'erro': 'Produto não encontrado.'})
     
@@ -52,9 +52,9 @@ def update_produto(request, produto_id):
 
 def delete_produto(request, produto_id):
     try:
-        produto = Produto.objects.get(id=produto_id)
+        produto = Produto.objects.get(produto_id=produto_id)
         produto.delete()
-        return render(request, 'delete_produto.html', {'sucesso': True})
+        return redirect('add_produto')
     except Produto.DoesNotExist:
-        return render(request, 'delete_produto.html', {'erro': 'Produto não encontrado.'})
+        return redirect('add_produto')
 

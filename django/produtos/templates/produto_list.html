@@ -1,1 +1,44 @@
-<h1>Eu voltarei</h1>
+{% extends 'loja.html' %}
+
+{% block title %}Produtos - PetsLove{% endblock %}
+
+{% block content %}
+	<!-- Carousel -->
+	<div class="carousel" aria-label="Destaques PetsLove">
+		<img src="https://picsum.photos/1200/600?image=1050" alt="Banner 1">
+		<img src="https://picsum.photos/1200/600?image=1039" alt="Banner 2">
+		<img src="https://picsum.photos/1200/600?image=1027" alt="Banner 3">
+		<div class="dots" aria-hidden="true">
+			<span class="dot active"></span>
+			<span class="dot"></span>
+			<span class="dot"></span>
+		</div>
+	</div>
+
+	<!-- Produtos -->
+	<section style="margin-top:18px">
+		<h2 style="margin:6px 0 12px 0">Produtos em destaque</h2>
+		<div class="cards">
+			{% for produto in produtos %}
+			<article class="card">
+				{% if produto.imagem %}
+					<img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}">
+				{% else %}
+					<img src="https://picsum.photos/400/300?random={{ forloop.counter }}" alt="{{ produto.nome }}">
+				{% endif %}
+				<div class="card-body">
+					<div class="card-title">{{ produto.nome }}</div>
+					<div class="card-desc" style="color:var(--muted);font-size:14px">{{ produto.descricao|default:'Sem descrição' }}</div>
+					<div class="card-price">{% if produto.preco %}R$ {{ produto.preco }}{% else %}—{% endif %}</div>
+					<div class="card-actions">
+						<a href="{% url 'update_produto' produto.produto_id %}" class="btn btn-primary">Editar</a>
+						<form method="post" action="{% url 'delete_produto' produto.produto_id %}" style="display:inline">{% csrf_token %}<button class="btn btn-outline" type="submit">Excluir</button></form>
+					</div>
+				</div>
+			</article>
+			{% empty %}
+				<p>Nenhum produto cadastrado.</p>
+			{% endfor %}
+		</div>
+	</section>
+{% endblock %}
