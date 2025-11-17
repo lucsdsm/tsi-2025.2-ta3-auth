@@ -31,7 +31,8 @@
 					<div class="card-desc" style="color:var(--muted);font-size:14px">{{ produto.descricao|default:'Sem descrição' }}</div>
 					<div class="card-price">{% if produto.preco %}R$ {{ produto.preco }}{% else %}—{% endif %}</div>
 					<div class="card-actions">
-						<a href="{% url 'update_produto' produto.produto_id %}" class="btn btn-primary">Editar</a>
+						<!-- <a href="{% url 'update_produto' produto.produto_id %}" class="btn btn-primary">Editar</a> -->
+                        <form method="post" action="{% url 'adicionar_ao_carrinho' produto.produto_id %}" >{% csrf_token %}<button class="btn btn-primary">Adicionar ao Carrinho</button></form>
 						<form method="post" action="{% url 'delete_produto' produto.produto_id %}" style="display:inline">{% csrf_token %}<button class="btn btn-outline" type="submit">Excluir</button></form>
 					</div>
 				</div>

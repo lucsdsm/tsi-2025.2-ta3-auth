@@ -58,3 +58,13 @@ def delete_produto(request, produto_id):
     except Produto.DoesNotExist:
         return redirect('add_produto')
 
+def adicionar_ao_carrinho(request, ,produto_id):
+
+    lista_de_compras = []
+    produto = Produto.objects.get(produto_id=produto_id)
+
+    if request.method == 'POST':
+        lista_de_compras.append(produto)
+        return render(request,'carrinho_de_compras.html', {'lista_de_compras': lista_de_compras})
+    
+    return redirect('produto_list')

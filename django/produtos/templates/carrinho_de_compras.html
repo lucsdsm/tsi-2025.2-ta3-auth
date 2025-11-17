@@ -1,0 +1,111 @@
+{% extends 'loja.html' %}
+
+{% block title %}Carrinho - PetsLove{% endblock %}
+
+{% block extra_style %}
+<style>
+    .cart-list{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+    .cart-item{display:flex;gap:12px;align-items:center;background:#fff;border-radius:8px;padding:12px;border:1px solid #eee}
+    .cart-item img{width:120px;height:90px;object-fit:cover;border-radius:6px}
+    .cart-meta{flex:1;display:flex;flex-direction:column}
+    .cart-title{font-weight:700;margin-bottom:6px}
+    .cart-qty{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .cart-actions{display:flex;gap:8px;align-items:center}
+    .cart-summary{margin-top:18px;background:#fff;padding:14px;border-radius:8px;border:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+    @media (max-width:700px){.cart-item{flex-direction:column;align-items:flex-start}.cart-item img{width:100%;height:180px}}
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1>Carrinho de Compras</h1>
+
+    {% if cart_items and cart_items|length > 0 %}
+        <div class="cart-list"> 
+            {% for item in cart_items %}
+            <div class="cart-item">
+                <div>
+                    {% if item.produto.imagem %}
+                        <img src="{{ item.produto.imagem.url }}" alt="{{ item.produto.nome }}">
+                    {% else %}
+                        <img src="https://picsum.photos/400/300?random={{ forloop.counter }}" alt="{{ item.produto.nome }}">
+                    {% endif %}
+                </div>
+
+                <div class="cart-meta">
+                    <div class="cart-title">{{ item.produto.nome }}</div>
+                    <div style="color:var(--muted)">Categoria: {{ item.produto.categoria.nome_categoria|default:'' }}</div>
+                    <div class="cart-qty">
+                        <form method="post" action="{% url 'update_cart' item.produto.produto_id %}" style="display:flex;gap:8px;align-items:center">
+                            {% csrf_token %}
+                            <label for="qty-{{ forloop.counter }}">Qtd:</label>
+                            <input id="qty-{{ forloop.counter }}" type="number" name="quantidade" min="1" value="{{ item.quantidade }}" style="width:68px;padding:6px;border-radius:6px;border:1px solid #ddd">
+                            <button class="btn btn-primary" type="submit">Atualizar</button>
+                        </form>
+                        <div style="margin-left:12px;color:var(--muted)">
+                            {% if item.subtotal %}
+                                <strong>Subtotal:</strong> R$ {{ item.subtotal }}
+                            {% else %}
+                                <strong>Preço:</strong> R$ {{ item.produto.preco }} x {{ item.quantidade }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+<!-- 
+                <div class="cart-actions">
+                    <form method="post" action="{% url 'remove_from_cart' item.produto.produto_id %}">{% csrf_token %}<button class="btn btn-outline" type="submit">Remover</button></form>
+                </div> -->
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary">
+            <div>
+                <div style="font-weight:700">Resumo do pedido</div>
+                <div style="color:var(--muted)">Itens: {{ cart_items|length }}</div>
+            </div>
+            <!-- <div style="text-align:right">
+                <div style="font-weight:700;font-size:18px">Total: R$ {{ cart_total|default:'0.00' }}</div>
+                <div style="margin-top:8px"><a href="{% url 'checkout' %}" class="btn btn-primary">Finalizar Compra</a></div>
+            </div> -->
+        </div>
+
+    {% elif lista_de_compras and lista_de_compras|length > 0 %}
+        <div class="cart-list">
+            {% for produto in lista_de_compras %}
+            <div class="cart-item">
+                <div>
+                    {% if produto.imagem %}
+                        <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}">
+                    {% else %}
+                        <img src="https://picsum.photos/400/300?random={{ forloop.counter }}" alt="{{ produto.nome }}">
+                    {% endif %}
+                </div>
+
+                <div class="cart-meta">
+                    <div class="cart-title">{{ produto.nome }}</div>
+                    <div style="color:var(--muted)">Categoria: {{ produto.categoria.nome_categoria|default:'' }}</div>
+                    <div class="cart-qty">
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <label>Qtd:</label>
+                            <input type="number" value="1" disabled style="width:68px;padding:6px;border-radius:6px;border:1px solid #ddd">
+                            <div style="margin-left:12px;color:var(--muted)"><strong>Preço:</strong> R$ {{ produto.preco }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary">
+            <div>
+                <div style="font-weight:700">Resumo do pedido</div>
+                <div style="color:var(--muted)">Itens: {{ lista_de_compras|length }}</div>
+            </div>
+        </div>
+
+    {% else %}
+        <p>Seu carrinho está vazio.</p>
+        <p><a href="{% url 'produto_list' %}" class="btn btn-primary">Ir para a loja</a></p>
+    {% endif %}
+
+{% endblock %}

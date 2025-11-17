@@ -1,4 +1,5 @@
 from django.db import models
+from 
 
 # Create your models here.
 
@@ -29,3 +30,7 @@ class Categoria(models.Model):
 
     def __str__(self):
         return self.nome_categoria
+
+
+class CarrinhoDeCompras(models.Model):
+
