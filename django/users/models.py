@@ -61,6 +61,21 @@ class User(AbstractUser):
         """Verifica se o usuário é cliente"""
         return self.user_type == self.CLIENTE
     
+    def delete(self, *args, **kwargs):
+        """Impede exclusão se houver consultas relacionadas"""
+        from django.core.exceptions import ValidationError
+        
+        # Verifica se é veterinário com consultas
+        if self.is_veterinario():
+            consultas_ativas = self.consultas_veterinario.exclude(status='CANCELADA').count()
+            if consultas_ativas > 0:
+                raise ValidationError(
+                    f"Não é possível excluir este veterinário pois há {consultas_ativas} consulta(s) relacionada(s). "
+                    "Cancele as consultas antes de excluir o veterinário."
+                )
+        
+        super().delete(*args, **kwargs)
+    
     class Meta:
         verbose_name = 'Usuário'
         verbose_name_plural = 'Usuários'

@@ -193,3 +193,17 @@ class Animal(models.Model):
             'I': '⚪',
         }
         return icons.get(self.sexo, '')
+    
+    def delete(self, *args, **kwargs):
+        """Impede exclusão se houver consultas agendadas ou realizadas"""
+        from django.core.exceptions import ValidationError
+        
+        # Verifica se há consultas não canceladas
+        consultas_ativas = self.consultas.exclude(status='CANCELADA').count()
+        if consultas_ativas > 0:
+            raise ValidationError(
+                f"Não é possível excluir este animal pois há {consultas_ativas} consulta(s) relacionada(s). "
+                "Cancele as consultas antes de excluir o animal."
+            )
+        
+        super().delete(*args, **kwargs)

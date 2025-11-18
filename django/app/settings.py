@@ -38,22 +38,31 @@ ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.app.github.dev',
+    'https://*.githubpreview.dev',
     'https://zany-goggles-94w6qq9v55g2w55-8000.app.github.dev',
     'https://paranormal-incantation-rvw7rrg979jcxvqr-8000.app.github.dev',
+    'https://urban-guacamole-97669rr7vjjw3757w-8000.app.github.dev',
     'http://localhost:8000',
     'https://localhost:8000'
 ]
 
 # Configurações de CSRF para ambientes de desenvolvimento (GitHub Codespaces)
-# SameSite=None requer Secure=True, mesmo em dev (Codespaces usa HTTPS)
-CSRF_COOKIE_SECURE = True  # True porque Codespaces usa HTTPS
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'None'  # None para funcionar em iframes/codespaces
-CSRF_USE_SESSIONS = False  # Garante que o token CSRF seja enviado via cookie
+# Ajustado para funcionar corretamente com Codespaces
+CSRF_COOKIE_SECURE = False  # Desabilitado para desenvolvimento
+CSRF_COOKIE_HTTPONLY = False  # Permite JavaScript acessar o token
+CSRF_COOKIE_SAMESITE = 'Lax'  # Lax é mais compatível com Codespaces
+CSRF_USE_SESSIONS = True  # Armazena token na sessão (mais estável após login)
 CSRF_COOKIE_NAME = 'csrftoken'
-CSRF_COOKIE_DOMAIN = None  # Permite o domínio do GitHub Codespaces
-SESSION_COOKIE_SECURE = True  # True porque Codespaces usa HTTPS
-SESSION_COOKIE_SAMESITE = 'None'  # None para funcionar em iframes/codespaces
+CSRF_COOKIE_DOMAIN = None
+CSRF_COOKIE_AGE = 31449600  # 1 ano
+SESSION_COOKIE_SECURE = False  # Desabilitado para desenvolvimento
+SESSION_COOKIE_SAMESITE = 'Lax'  # Lax é mais compatível
+SESSION_COOKIE_AGE = 1209600  # 2 semanas
+SESSION_SAVE_EVERY_REQUEST = True  # Salva sessão em cada request
+
+# Para desenvolvimento, aceita CSRF token do referer
+CSRF_COOKIE_PATH = '/'
+CSRF_FAILURE_VIEW = 'app.error_views.csrf_failure'
 
 # Application definition
 
@@ -62,6 +71,7 @@ INSTALLED_APPS = [
     "users",
     "pets",
     "panel",
+    "consultas",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -83,14 +93,27 @@ USE_X_FORWARDED_PORT = True
 
 SITE_ID = 1
 
-# Configurações de redirecionamento após login/logout do allauth
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+# Configurações de autenticação e redirecionamento
+LOGIN_URL = '/users/login/'  # URL para onde redireciona quando não autenticado
+LOGIN_REDIRECT_URL = '/'  # URL após login bem-sucedido
+LOGOUT_REDIRECT_URL = '/'  # URL após logout
+
+# Configurações do allauth (se usado)
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 ACCOUNT_LOGOUT_ON_GET = True
+
+# Configuração adicional para CSRF em ambiente de desenvolvimento
+if DEBUG:
+    # Em desenvolvimento, aceita qualquer origem
+    CSRF_TRUSTED_ORIGINS.extend([
+        'http://*',
+        'https://*'
+    ])
+    # Desabilita verificação estrita de referer em desenvolvimento
+    CSRF_COOKIE_DOMAIN = None
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -100,6 +123,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "app.middleware.CSRFRefreshMiddleware",  # Middleware customizado para CSRF
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -109,7 +133,7 @@ ROOT_URLCONF = "app.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'app' / 'templates'],  # Templates do app principal
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -160,9 +184,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "pt-br"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/Sao_Paulo"
 
 USE_I18N = True
 

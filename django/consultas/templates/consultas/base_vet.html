@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Painel Veterinário{% endblock %} - PetShop</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; }
+        .sidebar { width: 260px; background: linear-gradient(180deg, #16a085 0%, #1abc9c 100%); color: white; position: fixed; height: 100vh; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .sidebar-header { padding: 30px 20px; background: rgba(0,0,0,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header h1 { font-size: 20px; margin-bottom: 5px; }
+        .sidebar-header p { font-size: 14px; opacity: 0.8; }
+        .nav-menu { padding: 20px 0; }
+        .nav-section { margin-bottom: 25px; }
+        .nav-section-title { padding: 10px 20px; font-size: 12px; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
+        .nav-item { display: block; padding: 12px 20px; color: white; text-decoration: none; transition: all 0.3s; border-left: 3px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); border-left-color: #3498db; }
+        .nav-item.active { background: rgba(52, 152, 219, 0.2); border-left-color: #3498db; }
+        .nav-item-icon { display: inline-block; width: 24px; margin-right: 10px; }
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
+        .top-bar { background: white; padding: 20px 30px; margin: -30px -30px 30px -30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .breadcrumb { font-size: 14px; color: #7f8c8d; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .btn { padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: 600; transition: all 0.3s; border: none; cursor: pointer; display: inline-block; }
+        .btn-primary { background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-warning { background: #ffc107; color: #000; }
+        .btn-sm { padding: 6px 12px; font-size: 14px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; padding: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #ecf0f1; }
+        .card-header h2 { color: #2c3e50; font-size: 24px; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table thead { background: #f8f9fa; }
+        .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #ecf0f1; }
+        .table tbody tr:hover { background: #f8f9fa; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .badge-primary { background: #3498db; color: white; }
+        .badge-success { background: #27ae60; color: white; }
+        .badge-danger { background: #e74c3c; color: white; }
+        .badge-warning { background: #f39c12; color: white; }
+        .badge-secondary { background: #95a5a6; color: white; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        .form-control:focus { outline: none; border-color: #1abc9c; }
+        .messages { list-style: none; margin-bottom: 20px; }
+        .alert { padding: 15px 20px; border-radius: 5px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .alert-success { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
+        .alert-error { background: #f8d7da; border-left: 4px solid #dc3545; color: #721c24; }
+        .alert-warning { background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; }
+        .alert-info { background: #d1ecf1; border-left: 4px solid #17a2b8; color: #0c5460; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Painel Veterinário</h1>
+            <p>Sistema de Consultas</p>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">Principal</div>
+                <a href="{% url 'consultas:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <span class="nav-item-icon">📊</span> Dashboard
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Atendimentos</div>
+                <a href="{% url 'consultas:consulta_list' %}" class="nav-item {% if 'consulta' in request.resolver_match.url_name %}active{% endif %}">
+                    <span class="nav-item-icon">📅</span> Consultas
+                </a>
+                <a href="{% url 'consultas:consulta_create' %}" class="nav-item">
+                    <span class="nav-item-icon">➕</span> Nova Consulta
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Sistema</div>
+                <a href="{% url 'home' %}" class="nav-item">
+                    <span class="nav-item-icon">🏠</span> Voltar ao Site
+                </a>
+                <a href="{% url 'local_logout' %}" class="nav-item">
+                    <span class="nav-item-icon">🚪</span> Sair
+                </a>
+            </div>
+        </nav>
+    </div>
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="breadcrumb">{% block breadcrumb %}Dashboard{% endblock %}</div>
+            <div class="user-info">
+                <div class="user-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                <div>
+                    <div style="font-weight: 600;">Dr(a). {{ request.user.get_full_name|default:request.user.username }}</div>
+                    <div style="font-size: 12px; color: #7f8c8d;">Veterinário(a)</div>
+                </div>
+            </div>
+        </div>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

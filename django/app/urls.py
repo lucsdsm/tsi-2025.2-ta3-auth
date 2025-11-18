@@ -27,6 +27,7 @@ urlpatterns = [
     path("users/", include("users.urls")),
     path("pets/", include("pets.urls")),
     path("painel-admin/", include("panel.urls")),
+    path("painel-veterinario/", include("consultas.urls")),
     path("produtos/", include("produtos.urls")),
 ]
  # servir arquivos de mídia em modo de desenvolvimento

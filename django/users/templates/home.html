@@ -134,6 +134,9 @@
         {% if user.is_staff %}
         <a href="{% url 'panel:dashboard' %}">Painel Admin</a>
         {% endif %}
+        {% if user.is_veterinario %}
+        <a href="{% url 'consultas:dashboard' %}">Painel Veterinário</a>
+        {% endif %}
         <a href="{% url 'local_logout' %}">Sair</a>
     </div>
     {% endif %}

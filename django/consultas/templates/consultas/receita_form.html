@@ -1,0 +1,37 @@
+{% extends 'consultas/base_vet.html' %}
+
+{% block title %}{{ titulo }} - Painel Veterinário{% endblock %}
+
+{% block breadcrumb %}
+<a href="{% url 'consultas:consulta_list' %}">Consultas</a> > <a href="{% url 'consultas:consulta_detail' consulta.pk %}">Detalhes</a> > {{ titulo }}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ titulo }}</h2>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+            <small style="color: #7f8c8d;">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">{{ field.errors }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <div style="margin-top: 30px; display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary">{{ botao_submit }}</button>
+            <a href="{% url 'consultas:consulta_detail' consulta.pk %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

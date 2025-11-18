@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro de Segurança - CSRF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .error-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .error-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .reason-box {
+            background: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 4px;
+        }
+        
+        .reason-box strong {
+            color: #dc3545;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .solutions {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 4px;
+        }
+        
+        .solutions h3 {
+            color: #2196F3;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .solutions ol {
+            margin-left: 20px;
+            color: #555;
+        }
+        
+        .solutions li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(108, 117, 125, 0.4);
+        }
+        
+        .technical-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .technical-info summary {
+            cursor: pointer;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .technical-info pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: left;
+            overflow-x: auto;
+            font-size: 14px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">🔒</div>
+        <h1>Erro de Verificação de Segurança (CSRF)</h1>
+        
+        <div class="error-message">
+            A sua requisição foi bloqueada por motivos de segurança. 
+            Isso geralmente acontece após fazer login ou quando a página fica aberta por muito tempo.
+        </div>
+        
+        {% if reason %}
+        <div class="reason-box">
+            <strong>Razão técnica:</strong>
+            {{ reason }}
+        </div>
+        {% endif %}
+        
+        <div class="solutions">
+            <h3>✨ Como resolver:</h3>
+            <ol>
+                <li><strong>Recarregue a página</strong> - Clique no botão abaixo para voltar e recarregar</li>
+                <li><strong>Limpe o cache</strong> - Se o problema persistir, limpe o cache do navegador</li>
+                <li><strong>Verifique cookies</strong> - Certifique-se que seu navegador aceita cookies</li>
+                <li><strong>Tente novamente</strong> - Faça login novamente se necessário</li>
+            </ol>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="javascript:window.location.reload();" class="btn btn-primary">
+                🔄 Recarregar Página
+            </a>
+            {% if referer %}
+            <a href="{{ referer }}" class="btn btn-secondary">
+                ← Voltar
+            </a>
+            {% else %}
+            <a href="/" class="btn btn-secondary">
+                🏠 Ir para Home
+            </a>
+            {% endif %}
+        </div>
+        
+        <details class="technical-info">
+            <summary>📋 Informações Técnicas</summary>
+            <pre>URL: {{ current_url }}
+Referer: {{ referer }}
+Motivo: {{ reason }}</pre>
+        </details>
+    </div>
+    
+    <script>
+        // Auto-reload após 30 segundos se o usuário não fizer nada
+        let countdown = 30;
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+                window.location.reload();
+            }
+        }, 1000);
+        
+        // Cancela auto-reload se usuário interagir
+        document.addEventListener('click', () => {
+            clearInterval(countdownInterval);
+        });
+    </script>
+</body>
+</html>

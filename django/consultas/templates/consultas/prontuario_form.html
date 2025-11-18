@@ -1,0 +1,60 @@
+{% extends 'consultas/base_vet.html' %}
+
+{% block title %}{{ titulo }} - Painel Veterinário{% endblock %}
+
+{% block breadcrumb %}
+<a href="{% url 'consultas:consulta_list' %}">Consultas</a> > <a href="{% url 'consultas:consulta_detail' consulta.pk %}">Detalhes</a> > {{ titulo }}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ titulo }}</h2>
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h4>Consulta: {{ consulta.animal.nome }} - {{ consulta.data_hora|date:"d/m/Y H:i" }}</h4>
+        <p style="margin: 5px 0;">{{ consulta.get_tipo_display }} - {{ consulta.animal.proprietario.get_full_name|default:consulta.animal.proprietario.username }}</p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <h3 style="margin-bottom: 15px;">Dados Vitais</h3>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
+            {% for field in form %}
+            {% if field.name in 'peso,temperatura,frequencia_cardiaca,frequencia_respiratoria' %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        
+        <h3 style="margin-bottom: 15px;">Avaliação Clínica</h3>
+        {% for field in form %}
+        {% if field.name not in 'peso,temperatura,frequencia_cardiaca,frequencia_respiratoria' %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+            <small style="color: #7f8c8d;">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">{{ field.errors }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        
+        <div style="margin-top: 30px; display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary">{{ botao_submit }}</button>
+            <a href="{% url 'consultas:consulta_detail' consulta.pk %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'consultas/base_vet.html' %}
+
+{% block title %}Consultas - Painel Veterinário{% endblock %}
+
+{% block breadcrumb %}Minhas Consultas{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>📅 Minhas Consultas</h2>
+        <a href="{% url 'consultas:consulta_create' %}" class="btn btn-primary">+ Nova Consulta</a>
+    </div>
+    
+    <!-- Filtros -->
+    <form method="get" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <input type="text" name="busca" class="form-control" placeholder="Buscar por animal, proprietário ou motivo..." value="{{ busca }}" style="flex: 1; min-width: 200px;">
+        
+        <select name="status" class="form-control" style="width: 200px;">
+            <option value="">Todos os Status</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if filtro_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        
+        <select name="tipo" class="form-control" style="width: 200px;">
+            <option value="">Todos os Tipos</option>
+            {% for value, label in tipo_choices %}
+            <option value="{{ value }}" {% if filtro_tipo == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit" class="btn btn-info">Filtrar</button>
+        <a href="{% url 'consultas:consulta_list' %}" class="btn btn-secondary">Limpar</a>
+    </form>
+    
+    {% if consultas %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Data/Hora</th>
+                <th>Animal</th>
+                <th>Proprietário</th>
+                <th>Tipo</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for consulta in consultas %}
+            <tr>
+                <td>{{ consulta.data_hora|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <strong>{{ consulta.animal.nome }}</strong><br>
+                    <small>{{ consulta.animal.raca }} - {{ consulta.animal.tipo_animal }}</small>
+                </td>
+                <td>{{ consulta.animal.proprietario.get_full_name|default:consulta.animal.proprietario.username }}</td>
+                <td>{{ consulta.get_tipo_display }}</td>
+                <td>
+                    <span class="badge badge-{% if consulta.status == 'AGENDADA' %}primary{% elif consulta.status == 'CONFIRMADA' %}success{% elif consulta.status == 'REALIZADA' %}secondary{% elif consulta.status == 'CANCELADA' %}danger{% else %}warning{% endif %}">
+                        {{ consulta.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'consultas:consulta_detail' consulta.pk %}" class="btn btn-info btn-sm">Ver</a>
+                    {% if consulta.pode_editar %}
+                    <a href="{% url 'consultas:consulta_update' consulta.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <div style="text-align: center; margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-secondary btn-sm">Primeira</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary btn-sm">Anterior</a>
+        {% endif %}
+        
+        <span style="margin: 0 15px;">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary btn-sm">Próxima</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-secondary btn-sm">Última</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <p style="text-align: center; color: #7f8c8d; padding: 40px;">Nenhuma consulta encontrada.</p>
+    {% endif %}
+</div>
+{% endblock %}

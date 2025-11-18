@@ -1,0 +1,36 @@
+{% extends 'consultas/base_vet.html' %}
+
+{% block title %}Confirmar Exclusão - Painel Veterinário{% endblock %}
+
+{% block breadcrumb %}
+<a href="{% url 'consultas:consulta_list' %}">Consultas</a> > <a href="{% url 'consultas:consulta_detail' consulta.pk %}">Detalhes</a> > Excluir Receita
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>⚠️ Confirmar Exclusão de Receita</h2>
+    </div>
+    
+    <div style="padding: 20px;">
+        <p style="font-size: 18px; margin-bottom: 20px;">Tem certeza que deseja excluir esta receita?</p>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <p><strong>Medicamento:</strong> {{ object.medicamento }}</p>
+            <p><strong>Dosagem:</strong> {{ object.dosagem }}</p>
+            <p><strong>Frequência:</strong> {{ object.frequencia }}</p>
+            <p><strong>Duração:</strong> {{ object.duracao }}</p>
+        </div>
+        
+        <p style="color: #dc3545; margin-bottom: 20px;"><strong>Esta ação não pode ser desfeita!</strong></p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+                <a href="{% url 'consultas:consulta_detail' consulta.pk %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
