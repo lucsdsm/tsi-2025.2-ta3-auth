@@ -65,12 +65,19 @@ django/
 │   │   ├── local/        # Autenticação local
 │   │   └── google/       # OAuth2 Google
 │   └── templates/
-└── pets/                   # Gerenciamento de pets
-    ├── models.py          # TipoAnimal, Raca, Animal
-    ├── views.py           # CRUD + API de raças
+├── pets/                   # Gerenciamento de pets
+│   ├── models.py          # TipoAnimal, Raca, Animal
+│   ├── views.py           # CRUD + API de raças
+│   ├── urls.py
+│   ├── admin.py
+│   └── templates/         # Templates de pets
+└── produtos/             
+    ├── models.py          # Produto,categoria,carrinho_de_compras e ver_Carrinho_de_compras
+    ├── views.py           # CRUD + API de produtos
     ├── urls.py
     ├── admin.py
-    └── templates/         # Templates de pets
+    └── templates/         # Templates de Produtos
+
 ```
 
 ### Modelos de Dados:
@@ -99,6 +106,27 @@ django/
 - Data de nascimento
 - Observações
 - unique_together: [proprietario, nome]
+
+#### Produto (produto/models.py)
+- produto_id = models.AutoField(primary_key=True)
+- nome = models.CharField(max_length=100)
+- descricao = models.TextField()
+- preco = models.DecimalField(max_digits=10, decimal_places=2)
+- estoque = models.IntegerField()
+- imagem = models.ImageField(upload_to=caminho_imagem, null=True, blank=True)
+- categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE, null=True, blank=True)
+
+#### Categoria(produto/models.py)
+- id_categoria = models.AutoField(primary_key=True)
+- nome_categoria = models.CharField(max_length=100)
+
+#### CarrinhoDeCompras(produto/models.py):
+- usuario = models.ForeignKey(User, on_delete= models.CASCADE)
+
+#### ItemDoCarrinho(produto/models.py):
+- carrinho = models.ForeignKey(CarrinhoDeCompras, on_delete=models.CASCADE)
+- produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+- quantidade = models.IntegerField(default=1)
 
 ## 📦 Instalação e Configuração
 
