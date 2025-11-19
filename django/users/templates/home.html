@@ -89,6 +89,9 @@
             border-radius: 15px;
             backdrop-filter: blur(10px);
             transition: transform 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
         }
         .feature:hover {
             transform: translateY(-5px);
@@ -174,26 +177,26 @@
         {% endif %}
 
         <div class="features">
-            <div class="feature">
+            <a href="#" class="feature" role="button" aria-label="Atendimento - Veterinários especializados">
                 <div class="feature-icon">🏥</div>
                 <h3>Atendimento</h3>
                 <p>Veterinários especializados</p>
-            </div>
-            <div class="feature">
+            </a>
+            <a href="#" class="feature" role="button" aria-label="Farmácia - Medicamentos e suplementos">
                 <div class="feature-icon">💊</div>
                 <h3>Farmácia</h3>
                 <p>Medicamentos e suplementos</p>
-            </div>
-            <div class="feature">
+            </a>
+            <a href="#" class="feature" role="button" aria-label="Banho e Tosa - Cuidados e estética">
                 <div class="feature-icon">✂️</div>
                 <h3>Banho & Tosa</h3>
                 <p>Cuidados e estética</p>
-            </div>
-            <div class="feature">
+            </a>
+            <a href="{% url 'produto_list' %}" class="feature" role="button" aria-label="Pet Shop - Produtos e acessórios">
                 <div class="feature-icon">🛍️</div>
                 <h3>Pet Shop</h3>
                 <p>Produtos e acessórios</p>
-            </div>
+            </a>
         </div>
     </div>
 </body>

@@ -1,0 +1,120 @@
+{# add_produto.html #}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if produto %}Editar{% else %}Adicionar{% endif %} Produto - PetShop</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .form-card { background: white; padding: 36px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+        h1 { color: #333; margin-bottom: 20px; text-align: center; font-size: 24px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
+        input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 12px; border: 2px solid #e6e6e6; border-radius: 6px; font-size: 15px; transition: border-color .2s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
+        textarea { resize: vertical; }
+        .form-actions { display: flex; gap: 12px; margin-top: 18px; }
+        .btn { padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; flex: 1; text-align: center; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .errorlist { list-style: none; padding: 0; margin: 6px 0 0 0; }
+        .errorlist li { color: #dc3545; font-size: 14px; }
+        .alert { padding: 12px; border-radius: 6px; margin-bottom: 12px; }
+        .alert-success { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
+        .alert-error { background: #f8d7da; border-left: 4px solid #dc3545; color: #721c24; }
+        .produtos-list { margin-top: 22px; }
+        .produto-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 6px; background: #fafafa; margin-bottom: 10px; border: 1px solid #eee; }
+        .produto-actions { display: flex; gap: 8px; align-items: center; justify-content: center; min-width: 160px; }
+        .btn-small { padding: 8px 12px; font-size: 14px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <h1>{% if produto %}✏️ Editar Produto: {{ produto.nome }}{% else %}➕ Cadastrar Novo Produto{% endif %}</h1>
+
+            {% if errors %}
+            <div class="alert alert-error">
+                <strong>❌ Erro ao salvar:</strong>
+                <ul class="errorlist">
+                    {% for err in errors %}
+                        <li>{{ err }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if sucesso %}
+            <div class="alert alert-success">{{ sucesso }}</div>
+            {% endif %}
+
+            <form action="{% if produto %}{% url 'update_produto' produto.produto_id %}{% else %}{% url 'add_produto' %}{% endif %}" method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="nome">Nome do Produto *</label>
+                    <input type="text" name="nome" id="nome" placeholder="Shampoo do banho" value="{{ produto.nome|default:'' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea name="descricao" id="descricao" placeholder="Descrição do produto">{{ produto.descricao|default:'' }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="preco">Preço</label>
+                    <input type="number" step="0.01" name="preco" id="preco" placeholder="25.00" value="{{ produto.preco|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">Categoria</label>
+                    <select name="categoria" id="categoria">
+                        <option value="">Selecione uma categoria</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id_categoria }}" {% if produto and produto.categoria_id == categoria.id_categoria %}selected{% endif %}>
+                                {{ categoria.nome_categoria }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="estoque">Estoque</label>
+                    <input type="number" name="estoque" id="estoque" placeholder="20" value="{{ produto.estoque|default:'' }}" required>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'produto_list' %}" class="btn btn-secondary">← Voltar</a>
+                    <button type="submit" class="btn btn-primary">{% if produto %}💾 Salvar{% else %}➕ Cadastrar Produto{% endif %}</button>
+                </div>
+            </form>
+
+            <div class="produtos-list">
+                <h3 style="margin:14px 0 8px 0">Produtos Cadastrados</h3>
+                {% for produto in produtos %}
+                <div class="produto-item">
+                    <div>
+                        <strong>{{ produto.nome }}</strong>
+                        {% if produto.preco %} — R$ {{ produto.preco }}{% endif %}
+                    </div>
+                    <div class="produto-actions">
+                        <a href="{% url 'update_produto' produto.produto_id %}" class="btn btn-primary btn-small">Editar</a>
+                        <form method="post" action="{% url 'delete_produto' produto.produto_id %}" style="margin:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary btn-small">Excluir</button>
+                        </form>
+                    </div>
+                    
+                </div>
+                {% empty %}
+                    <p>Nenhum produto cadastrado.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
