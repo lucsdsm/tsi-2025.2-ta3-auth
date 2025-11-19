@@ -19,9 +19,9 @@
 {% block content %}
     <h1>Carrinho de Compras</h1>
 
-    {% if cart_items and cart_items|length > 0 %}
+    {% if produtos and produtos|length > 0 %}
         <div class="cart-list"> 
-            {% for item in cart_items %}
+            {% for item in produtos %}
             <div class="cart-item">
                 <div>
                     {% if item.produto.imagem %}
@@ -35,12 +35,6 @@
                     <div class="cart-title">{{ item.produto.nome }}</div>
                     <div style="color:var(--muted)">Categoria: {{ item.produto.categoria.nome_categoria|default:'' }}</div>
                     <div class="cart-qty">
-                        <form method="post" action="{% url 'update_cart' item.produto.produto_id %}" style="display:flex;gap:8px;align-items:center">
-                            {% csrf_token %}
-                            <label for="qty-{{ forloop.counter }}">Qtd:</label>
-                            <input id="qty-{{ forloop.counter }}" type="number" name="quantidade" min="1" value="{{ item.quantidade }}" style="width:68px;padding:6px;border-radius:6px;border:1px solid #ddd">
-                            <button class="btn btn-primary" type="submit">Atualizar</button>
-                        </form>
                         <div style="margin-left:12px;color:var(--muted)">
                             {% if item.subtotal %}
                                 <strong>Subtotal:</strong> R$ {{ item.subtotal }}
@@ -50,10 +44,6 @@
                         </div>
                     </div>
                 </div>
-<!-- 
-                <div class="cart-actions">
-                    <form method="post" action="{% url 'remove_from_cart' item.produto.produto_id %}">{% csrf_token %}<button class="btn btn-outline" type="submit">Remover</button></form>
-                </div> -->
             </div>
             {% endfor %}
         </div>
@@ -61,12 +51,8 @@
         <div class="cart-summary">
             <div>
                 <div style="font-weight:700">Resumo do pedido</div>
-                <div style="color:var(--muted)">Itens: {{ cart_items|length }}</div>
+                <div style="color:var(--muted)">Itens: {{ produtos|length }}</div>
             </div>
-            <!-- <div style="text-align:right">
-                <div style="font-weight:700;font-size:18px">Total: R$ {{ cart_total|default:'0.00' }}</div>
-                <div style="margin-top:8px"><a href="{% url 'checkout' %}" class="btn btn-primary">Finalizar Compra</a></div>
-            </div> -->
         </div>
 
     {% elif lista_de_compras and lista_de_compras|length > 0 %}

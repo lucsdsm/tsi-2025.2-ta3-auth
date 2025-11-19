@@ -1,5 +1,6 @@
 from django.db import models
-from 
+from users.models import User
+
 
 # Create your models here.
 
@@ -31,6 +32,17 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nome_categoria
 
-
 class CarrinhoDeCompras(models.Model):
 
+    usuario = models.ForeignKey(User, on_delete= models.CASCADE)
+
+    def __str__(self):
+        return f'Carrinho de {self.usuario.username}'
+
+class ItemDoCarrinho(models.Model):
+    carrinho = models.ForeignKey(CarrinhoDeCompras, on_delete=models.CASCADE)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    quantidade = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f'{self.quantidade} x {self.produto.nome} no carrinho de {self.carrinho.usuario.username}'

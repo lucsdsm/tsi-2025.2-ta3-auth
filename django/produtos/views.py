@@ -1,5 +1,7 @@
-from django.shortcuts import render, redirect
-from .models import Produto, Categoria
+from django.shortcuts import render, redirect, get_object_or_404
+from decimal import Decimal
+from .models import Produto, Categoria, CarrinhoDeCompras, ItemDoCarrinho
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -58,13 +60,65 @@ def delete_produto(request, produto_id):
     except Produto.DoesNotExist:
         return redirect('add_produto')
 
-def adicionar_ao_carrinho(request, ,produto_id):
 
-    lista_de_compras = []
-    produto = Produto.objects.get(produto_id=produto_id)
+@login_required
+def adicionar_ao_carrinho(request, produto_id):
 
     if request.method == 'POST':
-        lista_de_compras.append(produto)
-        return render(request,'carrinho_de_compras.html', {'lista_de_compras': lista_de_compras})
-    
+        # quantidade enviada no form (padrão 1)
+        try:
+            quantidade = int(request.POST.get('quantidade', 1))
+        except (TypeError, ValueError):
+            quantidade = 1
+
+        # garante que o produto existe
+        produto = get_object_or_404(Produto, produto_id=produto_id)
+
+        # Verifica se o carrinho existe para o usuário autenticado, se não, cria um novo
+        carrinho, criado_carrinho = CarrinhoDeCompras.objects.get_or_create(usuario=request.user)
+
+        # verifica se o item já está no carrinho, se não, cria um novo com a quantidade
+        item, criado_item = ItemDoCarrinho.objects.get_or_create(
+            carrinho=carrinho,
+            produto=produto,
+            defaults={'quantidade': quantidade}
+        )
+
+        if not criado_item:
+            # atualiza a quantidade existente
+            item.quantidade = (item.quantidade or 0) + quantidade
+            item.save()
+
+        return redirect('produto_list')
+
     return redirect('produto_list')
+
+@login_required
+def ver_carrinho(request):
+    # Obtém ou cria o carrinho do usuário autenticado
+    carrinho, carrinho_criado = CarrinhoDeCompras.objects.get_or_create(usuario=request.user)
+
+    # Busca itens relacionados ao carrinho, e o select_related para otimizar consultas
+    itens = ItemDoCarrinho.objects.filter(carrinho=carrinho).select_related('produto')
+
+    # Monta estrutura esperada pelo template
+    produtos = []
+    total = Decimal('0.00')
+    for item in itens:
+        preco = item.produto.preco or Decimal('0.00')
+        subtotal = preco * item.quantidade
+        produtos.append({
+            'produto': item.produto,
+            'quantidade': item.quantidade,
+            'subtotal': f"{subtotal:.2f}"
+        })
+        total += subtotal
+
+    return render(request, 'carrinho_de_compras.html', {'produtos': produtos, 'produto_total': f"{total:.2f}"})
+
+
+
+
+
+    
+
