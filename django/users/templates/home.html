@@ -140,6 +140,9 @@
         {% if user.is_veterinario %}
         <a href="{% url 'consultas:dashboard' %}">Painel Veterinário</a>
         {% endif %}
+        {% if user.is_funcionario or user.is_supervisor or user.is_gerente %}
+        <a href="{% url 'painel_funcionario' %}">Painel Funcionário</a>
+        {% endif %}
         <a href="{% url 'local_logout' %}">Sair</a>
     </div>
     {% endif %}

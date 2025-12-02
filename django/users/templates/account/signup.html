@@ -215,19 +215,34 @@
             
             <div class="form-group">
                 <label for="username">Nome de Usuário:</label>
-                <input type="text" id="username" name="username" placeholder="Ex: joao_silva" required>
+                <input type="text" id="username" name="username" placeholder="Ex: joao_silva" value="{{ form.username.value|default:'' }}" required>
                 <small style="color: #888; display: block; margin-top: 5px;">Será usado para login</small>
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <div class="error">❌ {{ error }}</div>
+                    {% endfor %}
+                {% endif %}
             </div>
 
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+                <input type="email" id="email" name="email" placeholder="seu@email.com" value="{{ form.email.value|default:'' }}" required>
                 <small style="color: #888; display: block; margin-top: 5px;">Você poderá usar também para login</small>
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <div class="error">❌ {{ error }}</div>
+                    {% endfor %}
+                {% endif %}
             </div>
 
             <div class="form-group">
                 <label for="password">Senha:</label>
                 <input type="password" id="password" name="password" placeholder="Digite uma senha segura" required>
+                {% if form.password.errors %}
+                    {% for error in form.password.errors %}
+                        <div class="error">❌ {{ error }}</div>
+                    {% endfor %}
+                {% endif %}
                 <div class="requirements">
                     <div class="requirement">
                         <strong>✓ Requisitos:</strong>
@@ -237,6 +252,29 @@
                     </div>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label for="password_confirm">Confirmar Senha:</label>
+                <input type="password" id="password_confirm" name="password_confirm" placeholder="Confirme sua senha" required>
+                {% if form.password_confirm.errors %}
+                    {% for error in form.password_confirm.errors %}
+                        <div class="error">❌ {{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="alert-message">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
 
             <button type="submit">Criar Conta com Email</button>
 

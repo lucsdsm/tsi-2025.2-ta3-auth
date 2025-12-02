@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{% if object %}Editar{% else %}Novo{% endif %} Usuário{% endblock %}
+{% block title %}{% if object %}Editar{% else %}Novo{% endif %} Funcionário{% endblock %}
 
 {% block breadcrumb %}Dashboard / Usuários / {% if object %}Editar{% else %}Novo{% endif %}{% endblock %}
 
@@ -26,7 +26,8 @@
     }
     
     .form-group input[type="text"],
-    .form-group input[type="email"] {
+    .form-group input[type="email"],
+    .form-group select {
         width: 100%;
         padding: 12px;
         border: 2px solid #e0e0e0;
@@ -34,9 +35,17 @@
         font-size: 16px;
     }
     
-    .form-group input:focus {
+    .form-group input:focus,
+    .form-group select:focus {
         outline: none;
         border-color: #667eea;
+    }
+    
+    .form-group small {
+        display: block;
+        margin-top: 5px;
+        color: #7f8c8d;
+        font-size: 13px;
     }
     
     .checkbox-group {
@@ -72,53 +81,150 @@
     .errorlist li {
         color: #dc3545;
         font-size: 14px;
+        padding: 5px 10px;
+        background: #f8d7da;
+        border-radius: 3px;
+        margin-top: 5px;
     }
     
     .vet-info {
         display: none;
+        background: #d1ecf1;
+        border-left: 4px solid #0c5460;
+        padding: 20px;
+        border-radius: 5px;
+        margin: 20px 0;
     }
     
     .vet-info.show {
         display: block;
+    }
+    
+    .alert-info {
+        background: #d1ecf1;
+        border-left: 4px solid #17a2b8;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    
+    .alert-warning {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+    
+    .matricula-info {
+        background: #e7f3ff;
+        border: 2px solid #0066cc;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .matricula-info h4 {
+        margin: 0 0 10px 0;
+        color: #0066cc;
+    }
+    
+    .matricula-info ul {
+        margin: 10px 0;
+        padding-left: 20px;
+    }
+    
+    .matricula-info li {
+        margin: 5px 0;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <h1 style="margin-bottom: 30px; color: #2c3e50;">
-    {% if object %}✏️ Editar Usuário: {{ object.username }}{% else %}➕ Novo Usuário{% endif %}
+    {% if object %}✏️ Editar Funcionário: {{ object.get_full_name|default:object.username }}{% else %}➕ Cadastrar Novo Funcionário{% endif %}
 </h1>
 
 <div class="form-card">
+    {% if not object %}
+    <div class="matricula-info">
+        <h4>📋 Sistema de Matrícula</h4>
+        <p><strong>Prefixos por tipo de funcionário:</strong></p>
+        <ul>
+            <li>🩺 <strong>Veterinário:</strong> 10XXXX (ex: 100001, 100002)</li>
+            <li>💼 <strong>Gerente:</strong> 15XXXX (ex: 150001, 150002)</li>
+            <li>📋 <strong>Supervisor:</strong> 20XXXX (ex: 200001, 200002)</li>
+            <li>👔 <strong>Funcionário:</strong> 25XXXX (ex: 250001, 250002)</li>
+        </ul>
+        <p style="margin: 10px 0 0 0;"><em>A senha padrão será gerada automaticamente: <code>Pet@{matrícula}</code></em></p>
+    </div>
+    {% endif %}
+    
     <form method="post">
         {% csrf_token %}
         
+        {% if form.non_field_errors %}
+        <div class="alert-warning">
+            <strong>⚠️ Erro:</strong>
+            <ul style="margin: 5px 0 0 0; padding-left: 20px;">
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% if not object %}
         <div class="form-group">
-            <label for="id_username">Username *</label>
-            {{ form.username }}
-            {% if form.username.errors %}
+            <label for="id_matricula">Matrícula * (6 dígitos)</label>
+            {{ form.matricula }}
+            {% if form.matricula.errors %}
                 <ul class="errorlist">
-                    {% for error in form.username.errors %}
+                    {% for error in form.matricula.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <small>{{ form.matricula.help_text }}</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="id_user_type">Tipo de Funcionário *</label>
+            {{ form.user_type }}
+            {% if form.user_type.errors %}
+                <ul class="errorlist">
+                    {% for error in form.user_type.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="form-group">
+            <label>Matrícula</label>
+            <input type="text" value="{{ object.matricula|default:'Sem matrícula' }}" disabled class="form-control">
+            <small>Matrícula não pode ser alterada após criação</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="id_user_type">Tipo de Funcionário *</label>
+            {{ form.user_type }}
+            {% if form.user_type.errors %}
+                <ul class="errorlist">
+                    {% for error in form.user_type.errors %}
                         <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
             {% endif %}
         </div>
         
-        <div class="form-group">
-            <label for="id_email">Email *</label>
-            {{ form.email }}
-            {% if form.email.errors %}
-                <ul class="errorlist">
-                    {% for error in form.email.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
+        {% if object.matricula %}
+        {{ form.matricula.as_hidden }}
+        {% endif %}
+        {% endif %}
         
         <div class="form-group">
-            <label for="id_first_name">Primeiro Nome</label>
+            <label for="id_first_name">Nome *</label>
             {{ form.first_name }}
             {% if form.first_name.errors %}
                 <ul class="errorlist">
@@ -130,7 +236,7 @@
         </div>
         
         <div class="form-group">
-            <label for="id_last_name">Sobrenome</label>
+            <label for="id_last_name">Sobrenome *</label>
             {{ form.last_name }}
             {% if form.last_name.errors %}
                 <ul class="errorlist">
@@ -142,11 +248,11 @@
         </div>
         
         <div class="form-group">
-            <label for="id_user_type">Tipo de Usuário *</label>
-            {{ form.user_type }}
-            {% if form.user_type.errors %}
+            <label for="id_email">E-mail *</label>
+            {{ form.email }}
+            {% if form.email.errors %}
                 <ul class="errorlist">
-                    {% for error in form.user_type.errors %}
+                    {% for error in form.email.errors %}
                         <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
@@ -163,16 +269,14 @@
                     {% endfor %}
                 </ul>
             {% endif %}
+            <small>Ex: (11) 98765-4321</small>
         </div>
         
         <div class="vet-info" id="vetInfo">
-            <div style="background: #d1ecf1; border-left: 4px solid #0c5460; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <strong>🩺 Informações Veterinárias</strong>
-                <p style="margin: 5px 0 0 0; font-size: 14px;">Preencha as informações do veterinário</p>
-            </div>
+            <h4 style="margin: 0 0 15px 0; color: #0c5460;">🩺 Informações Veterinárias</h4>
             
-            <div class="form-group">
-                <label for="id_crmv">CRMV</label>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="id_crmv">CRMV *</label>
                 {{ form.crmv }}
                 {% if form.crmv.errors %}
                     <ul class="errorlist">
@@ -181,11 +285,11 @@
                         {% endfor %}
                     </ul>
                 {% endif %}
-                <small style="color: #7f8c8d;">Ex: SP-12345</small>
+                <small>Ex: CRMV-SP 12345</small>
             </div>
             
-            <div class="form-group">
-                <label for="id_especialidade">Especialidade</label>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="id_especialidade">Especialidade *</label>
                 {{ form.especialidade }}
                 {% if form.especialidade.errors %}
                     <ul class="errorlist">
@@ -194,32 +298,32 @@
                         {% endfor %}
                     </ul>
                 {% endif %}
-                <small style="color: #7f8c8d;">Ex: Clínica Geral, Cirurgia, Dermatologia</small>
+                <small>Ex: Clínica Geral, Cirurgia, Dermatologia</small>
             </div>
         </div>
         
+        {% if object %}
         <div class="form-group">
-            <label style="margin-bottom: 15px;">Permissões</label>
-            <div class="checkbox-group">
-                {{ form.is_staff }}
-                <label for="id_is_staff">Staff (pode acessar painel administrativo)</label>
-            </div>
+            <label style="margin-bottom: 15px;">Status</label>
             <div class="checkbox-group">
                 {{ form.is_active }}
-                <label for="id_is_active">Ativo (usuário pode fazer login)</label>
+                <label for="id_is_active">Ativo (funcionário pode fazer login)</label>
             </div>
         </div>
+        {% endif %}
         
         {% if not object %}
-        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 5px; margin-top: 20px;">
-            <strong>⚠️ Atenção:</strong> A senha temporária será: <code>TempPassword123!</code>
+        <div class="alert-warning">
+            <strong>🔑 Informação Importante:</strong><br>
+            Após criar o funcionário, uma senha padrão será gerada automaticamente no formato: <code>Pet@{matrícula}</code><br>
+            <em>Anote as credenciais para repassar ao funcionário!</em>
         </div>
         {% endif %}
         
         <div class="form-actions">
             <a href="{% url 'panel:usuarios_list' %}" class="btn btn-secondary">← Cancelar</a>
             <button type="submit" class="btn btn-primary">
-                {% if object %}💾 Salvar Alterações{% else %}➕ Cadastrar{% endif %}
+                {% if object %}💾 Salvar Alterações{% else %}➕ Cadastrar Funcionário{% endif %}
             </button>
         </div>
     </form>
@@ -231,17 +335,23 @@
     const vetInfo = document.getElementById('vetInfo');
     
     function toggleVetInfo() {
-        if (userTypeSelect.value === 'VETERINARIO') {
-            vetInfo.classList.add('show');
-        } else {
-            vetInfo.classList.remove('show');
+        if (userTypeSelect && vetInfo) {
+            if (userTypeSelect.value === 'VETERINARIO') {
+                vetInfo.classList.add('show');
+            } else {
+                vetInfo.classList.remove('show');
+            }
         }
     }
     
     // Executar ao carregar a página
-    toggleVetInfo();
-    
-    // Executar quando mudar o tipo
-    userTypeSelect.addEventListener('change', toggleVetInfo);
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleVetInfo();
+        
+        // Executar quando mudar o tipo
+        if (userTypeSelect) {
+            userTypeSelect.addEventListener('change', toggleVetInfo);
+        }
+    });
 </script>
 {% endblock %}

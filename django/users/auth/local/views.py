@@ -24,77 +24,41 @@ Para usar em outro projeto:
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
+from django.contrib import messages
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.middleware.csrf import rotate_token
+from users.forms import ClientePublicCreateForm
 
 User = get_user_model()
 
 
+@ensure_csrf_cookie
 def create_user(request):
     """
-    Cadastra um novo usuário no sistema.
-    Valida username único, email único e senha com mínimo de 8 caracteres.
-    
-    Validação extra: Detecta se o email já está sendo usado por uma
-    conta Google e sugere definir senha nessa conta existente.
+    Cadastra um novo cliente no sistema.
+    Apenas clientes podem se cadastrar publicamente.
+    Funcionários devem ser cadastrados pelo administrador.
     """
-    error_message = None
-    
     if request.method == "POST":
-        username = request.POST.get("username", "").strip()
-        email = request.POST.get("email", "").strip()
-        password = request.POST.get("password", "")
-
-        # Validações
-        if not username or not email or not password:
-            error_message = "❌ Todos os campos são obrigatórios."
-        
-        elif len(username) < 3:
-            error_message = "❌ Nome de usuário deve ter pelo menos 3 caracteres."
-        
-        elif len(username) > 30:
-            error_message = "❌ Nome de usuário não pode ter mais de 30 caracteres."
-        
-        elif not username.replace('_', '').replace('-', '').isalnum():
-            error_message = "❌ Nome de usuário pode conter apenas letras, números, hífen e underscore."
-        
-        elif '@' not in email:
-            error_message = "❌ Email inválido. Verifique o formato."
-        
-        elif len(password) < 8:
-            error_message = "❌ A senha deve ter pelo menos 8 caracteres."
-        
-        elif len(password) > 128:
-            error_message = "❌ A senha não pode ter mais de 128 caracteres."
-        
-        elif User.objects.filter(username=username).exists():
-            error_message = "❌ Este nome de usuário já está em uso. Tente outro."
-        
-        elif User.objects.filter(email=email).exists():
-            # Verifica se é uma conta do Google sem senha
-            existing_user = User.objects.get(email=email)
-            if not existing_user.has_usable_password():
-                error_message = (
-                    "⚠️ Este email já está cadastrado via Google. "
-                    "Faça login com o Google e defina uma senha na sua conta para poder usar também o login tradicional."
-                )
-            else:
-                error_message = "❌ Este email já está cadastrado. Use outro email ou tente fazer login."
-
-        if error_message is None:
-            user = User(username=username, email=email)
-            user.set_password(password)  # Criptografa a senha
-            user.save()
-            return redirect('local_login')  # Redireciona para login após cadastro
-            
-    return render(request, "account/signup.html", {"error": error_message})
+        form = ClientePublicCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ Cadastro realizado com sucesso! Faça login para continuar.")
+            return redirect('local_login')
+        # Se houver erros, o formulário será renderizado com os erros
+    else:
+        form = ClientePublicCreateForm()
+    
+    return render(request, "account/signup.html", {
+        "form": form
+    })
 
 
+@ensure_csrf_cookie
 def user_login(request):
     """
-    Autentica usuário usando username OU email + senha.
-    Permite login com qualquer um dos dois identificadores.
-    
-    Validação extra: Detecta usuários criados pelo Google que ainda
-    não definiram senha e exibe mensagem informativa.
+    Autentica usuário usando username, email OU matrícula + senha.
+    Permite login com qualquer um dos três identificadores.
     """
     if request.method == "POST":
         login_input = request.POST.get("login", "").strip()
@@ -103,55 +67,99 @@ def user_login(request):
         error_message = None
 
         if not login_input or not password:
-            error_message = "❌ Usuário/Email e senha são obrigatórios."
+            error_message = "❌ Usuário/Email/Matrícula e senha são obrigatórios."
         
         elif len(login_input) < 3:
-            error_message = "❌ Usuário/Email inválido."
+            error_message = "❌ Usuário/Email/Matrícula inválido."
         
         else:
             # Tenta autenticar com username primeiro
             user = authenticate(request, username=login_input, password=password)
             
-            # Se falhar, tenta com email
+            # Se falhar, tenta com email ou matrícula
             if not user:
                 try:
-                    user_obj = User.objects.get(email=login_input)
+                    # Tenta buscar por email
+                    user_obj = User.objects.filter(email=login_input).first()
                     
-                    # Verifica se o usuário tem senha definida
-                    if not user_obj.has_usable_password():
-                        error_message = (
-                            "⚠️ Esta conta foi criada com o Google e ainda não tem senha definida. "
-                            "Faça login com o Google e crie uma senha, ou redefina sua senha para usar login tradicional."
-                        )
+                    # Se não encontrar por email, tenta por matrícula
+                    if not user_obj:
+                        user_obj = User.objects.filter(matricula=login_input).first()
+                    
+                    if user_obj:
+                        # Verifica se o usuário tem senha definida
+                        if not user_obj.has_usable_password():
+                            error_message = (
+                                "⚠️ Esta conta foi criada com o Google e ainda não tem senha definida. "
+                                "Faça login com o Google e crie uma senha, ou redefina sua senha para usar login tradicional."
+                            )
+                        else:
+                            user = authenticate(request, username=user_obj.username, password=password)
+                            if not user:
+                                error_message = "❌ Senha incorreta. Verifique e tente novamente."
                     else:
-                        user = authenticate(request, username=user_obj.username, password=password)
-                        if not user:
-                            error_message = "❌ Senha incorreta. Verifique e tente novamente."
+                        error_message = "❌ Usuário/Email/Matrícula não encontrado. Verifique ou crie uma nova conta."
                 
-                except User.DoesNotExist:
+                except Exception as e:
                     user = None
-                    error_message = "❌ Usuário/Email não encontrado. Verifique ou crie uma nova conta."
+                    error_message = "❌ Erro ao processar login. Tente novamente."
             
-            elif not user:
-                error_message = "❌ Senha incorreta. Verifique e tente novamente."
-                    
             if user:
                 login(request, user)
-                return redirect('home')
+                
+                # Redireciona baseado no tipo de usuário
+                if user.is_staff:
+                    return redirect('panel:dashboard')
+                elif user.is_veterinario():
+                    return redirect('consultas:dashboard')
+                elif user.is_funcionario() or user.is_supervisor() or user.is_gerente():
+                    return redirect('painel_funcionario')
+                else:
+                    return redirect('home')
             elif not error_message:
                 error_message = "❌ Falha ao autenticar. Tente novamente."
         
         return render(request, "account/login.html", {"error": error_message})
 
-    return render(request, "account/login.html")
+    # GET request - garante que sempre há um token CSRF fresco
+    from django.middleware.csrf import get_token
+    response = render(request, "account/login.html")
+    
+    # Força geração e envio do token CSRF
+    token = get_token(request)
+    response.set_cookie(
+        'csrftoken',
+        token,
+        max_age=31449600,
+        path='/',
+        secure=False,
+        httponly=False,
+        samesite='Lax'
+    )
+    
+    return response
 
 
+@ensure_csrf_cookie
 def user_logout(request):
     """
-    Encerra a sessão do usuário.
+    Encerra a sessão do usuário e redireciona para login.
+    Garante que um novo token CSRF seja gerado.
     """
+    # Salva resposta de redirect
+    response = redirect('local_login')
+    
+    # Faz logout
     logout(request)
-    return redirect('home')
+    
+    # DELETA o cookie CSRF antigo forçando criação de um novo
+    response.delete_cookie('csrftoken', path='/', domain=None)
+    
+    # Rotaciona o token CSRF para garantir um token fresco
+    rotate_token(request)
+    
+    messages.success(request, "✅ Você foi desconectado com sucesso.")
+    return response
 
 
 def list_users(request):

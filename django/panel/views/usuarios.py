@@ -6,10 +6,11 @@ CRUD completo para administradores
 from django.views.generic import ListView, CreateView, UpdateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.db.models import Q
 from users.models import User
+from users.forms import FuncionarioCreateForm
 
 
 class UsuarioListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -60,31 +61,27 @@ class UsuarioListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 
 class UsuarioCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-    """Criação de novo usuário pelo admin"""
+    """Criação de novo funcionário pelo admin com sistema de matrícula"""
     model = User
+    form_class = FuncionarioCreateForm
     template_name = 'usuarios/form.html'
-    fields = ['username', 'email', 'first_name', 'last_name', 'user_type', 'telefone', 'crmv', 'especialidade', 'is_staff', 'is_active']
     success_url = reverse_lazy('panel:usuarios_list')
     
     def test_func(self):
         return self.request.user.is_staff
     
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        # Adicionar classes CSS para melhorar apresentação
-        for field_name, field in form.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-        return form
-    
     def form_valid(self, form):
-        # Senha padrão temporária
-        user = form.save(commit=False)
-        user.set_password('TempPassword123!')
-        user.save()
+        user = form.save()
+        
+        # Gera senha padrão
+        senha_padrao = User.gerar_senha_padrao(user.matricula)
         
         messages.success(
             self.request,
-            f"✅ Usuário '{user.username}' criado com sucesso! Senha temporária: TempPassword123!"
+            f"✅ Funcionário '{user.get_full_name()}' criado com sucesso!<br>"
+            f"<strong>Matrícula:</strong> {user.matricula}<br>"
+            f"<strong>Senha padrão:</strong> {senha_padrao}<br>"
+            f"<em>Informe estes dados ao funcionário para o primeiro acesso.</em>"
         )
         return redirect(self.success_url)
 
@@ -93,7 +90,7 @@ class UsuarioUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Edição de usuário existente"""
     model = User
     template_name = 'usuarios/form.html'
-    fields = ['username', 'email', 'first_name', 'last_name', 'user_type', 'telefone', 'crmv', 'especialidade', 'is_staff', 'is_active']
+    fields = ['first_name', 'last_name', 'email', 'user_type', 'matricula', 'telefone', 'crmv', 'especialidade', 'is_active']
     success_url = reverse_lazy('panel:usuarios_list')
     
     def test_func(self):
@@ -104,12 +101,23 @@ class UsuarioUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         # Adicionar classes CSS para melhorar apresentação
         for field_name, field in form.fields.items():
             field.widget.attrs['class'] = 'form-control'
+        
+        # Tornar matrícula readonly se já estiver definida
+        if self.object.matricula:
+            form.fields['matricula'].widget.attrs['readonly'] = True
+            form.fields['matricula'].help_text = 'Matrícula não pode ser alterada após criação'
+        
         return form
     
     def form_valid(self, form):
+        # Validar matrícula se foi alterada
+        if self.object.matricula and form.cleaned_data.get('matricula') != self.object.matricula:
+            messages.error(self.request, "❌ Matrícula não pode ser alterada!")
+            return self.form_invalid(form)
+        
         messages.success(
             self.request,
-            f"✅ Usuário '{form.instance.username}' atualizado com sucesso!"
+            f"✅ Usuário '{form.instance.get_full_name() or form.instance.username}' atualizado com sucesso!"
         )
         return super().form_valid(form)
 

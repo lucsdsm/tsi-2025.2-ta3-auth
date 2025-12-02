@@ -210,9 +210,11 @@
             {% for usuario in usuarios %}
             <tr>
                 <td>
-                    <div style="font-weight: 600;">{{ usuario.username }}</div>
-                    {% if usuario.first_name or usuario.last_name %}
-                    <div style="font-size: 12px; color: #7f8c8d;">{{ usuario.get_full_name }}</div>
+                    <div style="font-weight: 600;">{{ usuario.get_full_name|default:usuario.username }}</div>
+                    {% if usuario.matricula %}
+                    <div style="font-size: 12px; color: #7f8c8d;">🔢 Matrícula: {{ usuario.matricula }}</div>
+                    {% else %}
+                    <div style="font-size: 12px; color: #7f8c8d;">Username: {{ usuario.username }}</div>
                     {% endif %}
                     {% if usuario.is_veterinario and usuario.crmv %}
                     <div style="font-size: 11px; color: #3498db;">
@@ -239,6 +241,10 @@
                         <span class="badge badge-danger">👑 {{ usuario.get_user_type_display }}</span>
                     {% elif usuario.user_type == 'VETERINARIO' %}
                         <span class="badge" style="background: #d1ecf1; color: #0c5460;">🩺 {{ usuario.get_user_type_display }}</span>
+                    {% elif usuario.user_type == 'GERENTE' %}
+                        <span class="badge" style="background: #fff3cd; color: #856404;">💼 {{ usuario.get_user_type_display }}</span>
+                    {% elif usuario.user_type == 'SUPERVISOR' %}
+                        <span class="badge" style="background: #cce5ff; color: #004085;">📋 {{ usuario.get_user_type_display }}</span>
                     {% elif usuario.user_type == 'FUNCIONARIO' %}
                         <span class="badge badge-warning">👔 {{ usuario.get_user_type_display }}</span>
                     {% else %}

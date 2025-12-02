@@ -10,6 +10,10 @@ from .views import (
     TipoAnimalAdminListView, TipoAnimalAdminCreateView, TipoAnimalAdminUpdateView, TipoAnimalAdminDeleteView,
     RacaAdminListView, RacaAdminCreateView, RacaAdminUpdateView, RacaAdminDeleteView,
     PetAdminListView,
+    ClienteListView,
+    ClienteCadastroFuncView,
+    ClienteEditarView,
+    ClienteAdicionarPetView,
 )
 
 app_name = 'panel'
@@ -23,6 +27,12 @@ urlpatterns = [
     path('usuarios/novo/', UsuarioCreateView.as_view(), name='usuarios_create'),
     path('usuarios/<int:pk>/editar/', UsuarioUpdateView.as_view(), name='usuarios_update'),
     path('usuarios/<int:pk>/toggle-status/', UsuarioToggleStatusView.as_view(), name='usuarios_toggle_status'),
+    
+    # Gerenciamento de clientes (funcionários)
+    path('clientes/', ClienteListView.as_view(), name='clientes_list'),
+    path('clientes/cadastrar/', ClienteCadastroFuncView.as_view(), name='clientes_cadastrar'),
+    path('clientes/<int:pk>/editar/', ClienteEditarView.as_view(), name='clientes_editar'),
+    path('clientes/<int:cliente_id>/adicionar-pet/', ClienteAdicionarPetView.as_view(), name='clientes_adicionar_pet'),
     
     # Gerenciamento de tipos de animais
     path('tipos-animais/', TipoAnimalAdminListView.as_view(), name='tipos_animais_list'),
@@ -39,3 +49,4 @@ urlpatterns = [
     # Visualização de pets
     path('pets/', PetAdminListView.as_view(), name='pets_list'),
 ]
+

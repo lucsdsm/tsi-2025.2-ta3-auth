@@ -21,10 +21,6 @@ class VeterinarioRequiredMixin(UserPassesTestMixin):
     
     def test_func(self):
         return self.request.user.is_veterinario()
-    
-    def handle_no_permission(self):
-        messages.error(self.request, 'Apenas veterinários podem acessar esta área.')
-        return redirect('home')
 
 
 class ConsultaListView(LoginRequiredMixin, VeterinarioRequiredMixin, ListView):

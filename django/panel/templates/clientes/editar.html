@@ -1,0 +1,177 @@
+{% extends 'base_func.html' %}
+
+{% block title %}Editar Cliente{% endblock %}
+
+{% block breadcrumb %}Dashboard / Clientes / Editar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .form-group small {
+        display: block;
+        margin-top: 5px;
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 5px 0 0 0;
+    }
+    
+    .errorlist li {
+        color: #dc3545;
+        font-size: 13px;
+        padding: 6px 10px;
+        background: #f8d7da;
+        border-radius: 4px;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid #f0f0f0;
+    }
+    
+    .info-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 25px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h1 style="color: #2c3e50;">✏️ Editar Dados do Cliente</h1>
+    <a href="{% url 'panel:clientes_list' %}" class="btn btn-secondary">← Voltar</a>
+</div>
+
+<div class="form-container">
+    <div class="info-box">
+        <strong>ℹ️ Informação:</strong> Complete os dados do cliente que faltam. 
+        Se informar o CPF, ele substituirá o username atual.
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="id_first_name">{{ form.first_name.label }} *</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.first_name.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_last_name">{{ form.last_name.label }} *</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.last_name.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="id_email">{{ form.email.label }} *</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <ul class="errorlist">
+                    {% for error in form.email.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="id_cpf">{{ form.cpf.label }}</label>
+                {{ form.cpf }}
+                {% if form.cpf.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.cpf.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <small>{{ form.cpf.help_text }}</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_telefone">{{ form.telefone.label }}</label>
+                {{ form.telefone }}
+                {% if form.telefone.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.telefone.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'panel:clientes_list' %}" class="btn btn-secondary">✖ Cancelar</a>
+            <button type="submit" class="btn btn-primary">✓ Salvar Alterações</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

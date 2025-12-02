@@ -1,0 +1,274 @@
+{% extends 'base_func.html' %}
+
+{% block title %}Clientes Cadastrados{% endblock %}
+
+{% block breadcrumb %}Dashboard / Clientes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-bar {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .search-bar input {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    
+    .search-bar input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .search-bar button {
+        padding: 12px 30px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    
+    .search-bar button:hover {
+        background: #5568d3;
+    }
+    
+    .stats-bar {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .cliente-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+    
+    .cliente-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .cliente-info h3 {
+        margin: 0 0 5px 0;
+        font-size: 20px;
+    }
+    
+    .cliente-info p {
+        margin: 3px 0;
+        opacity: 0.9;
+        font-size: 14px;
+    }
+    
+    .cliente-stats {
+        text-align: right;
+    }
+    
+    .cliente-stats .number {
+        font-size: 32px;
+        font-weight: bold;
+    }
+    
+    .cliente-stats .label {
+        font-size: 12px;
+        opacity: 0.9;
+    }
+    
+    .pets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 20px;
+    }
+    
+    .pet-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        border: 2px solid #e0e0e0;
+    }
+    
+    .pet-card:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        transition: all 0.3s;
+    }
+    
+    .pet-icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+    
+    .pet-name {
+        font-weight: 600;
+        font-size: 16px;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    
+    .pet-details {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin: 3px 0;
+    }
+    
+    .no-pets {
+        padding: 40px 20px;
+        text-align: center;
+        color: #7f8c8d;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 30px;
+    }
+    
+    .pagination a,
+    .pagination span {
+        padding: 8px 15px;
+        background: white;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #667eea;
+        border: 2px solid #e0e0e0;
+    }
+    
+    .pagination a:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+    
+    .pagination .current {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h1 style="color: #2c3e50;">👥 Clientes Cadastrados</h1>
+    <a href="{% url 'panel:clientes_cadastrar' %}" class="btn btn-primary">➕ Cadastrar Novo Cliente</a>
+</div>
+
+<!-- Barra de Busca -->
+<form method="get" class="search-bar">
+    <input type="text" name="search" placeholder="Buscar cliente por nome, email ou username..." value="{{ request.GET.search }}">
+    <button type="submit">🔍 Buscar</button>
+    {% if request.GET.search %}
+    <a href="{% url 'panel:clientes_list' %}" class="btn btn-secondary">✖ Limpar</a>
+    {% endif %}
+</form>
+
+<!-- Estatísticas -->
+<div class="stats-bar">
+    <div>
+        <strong>Total de Clientes:</strong> {{ total_clientes }}
+    </div>
+    {% if request.GET.search %}
+    <div>
+        <strong>Resultados encontrados:</strong> {{ clientes|length }}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Lista de Clientes -->
+{% if clientes %}
+    {% for cliente in clientes %}
+    <div class="cliente-card">
+        <div class="cliente-header">
+            <div class="cliente-info">
+                <h3>{{ cliente.get_full_name|default:cliente.username }}</h3>
+                <p>📧 {{ cliente.email }}</p>
+                <p>📞 {{ cliente.telefone|default:"Não informado" }}</p>
+                <p>📅 Cliente desde {{ cliente.date_joined|date:"d/m/Y" }}</p>
+            </div>
+            <div class="cliente-stats">
+                <div class="number">{{ cliente.total_pets }}</div>
+                <div class="label">Pet{{ cliente.total_pets|pluralize }}</div>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <a href="{% url 'panel:clientes_editar' cliente.pk %}" class="btn btn-sm" style="background: #667eea; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 13px;">✏️ Editar</a>
+                    <a href="{% url 'panel:clientes_adicionar_pet' cliente.pk %}" class="btn btn-sm" style="background: #1abc9c; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 13px;">➕ Pet</a>
+                </div>
+            </div>
+        </div>
+        
+        {% if cliente.pets %}
+        <div class="pets-grid">
+            {% for pet in cliente.pets %}
+            <div class="pet-card">
+                <div class="pet-icon">🐾</div>
+                <div class="pet-name">{{ pet.nome }}</div>
+                <div class="pet-details">{{ pet.tipo_animal.nome }}</div>
+                <div class="pet-details">{{ pet.raca.nome }}</div>
+                <div class="pet-details">{{ pet.get_sexo_display }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-pets">
+            <p>Este cliente ainda não possui pets cadastrados</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">« Primeira</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">‹ Anterior</a>
+        {% endif %}
+        
+        <span class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Próxima ›</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Última »</a>
+        {% endif %}
+    </div>
+    {% endif %}
+{% else %}
+    <div class="cliente-card">
+        <div class="no-pets">
+            <h3>Nenhum cliente encontrado</h3>
+            {% if request.GET.search %}
+            <p>Nenhum resultado para "{{ request.GET.search }}"</p>
+            <a href="{% url 'panel:clientes_list' %}" class="btn btn-secondary">Ver todos os clientes</a>
+            {% else %}
+            <p>Ainda não há clientes cadastrados no sistema</p>
+            <a href="{% url 'panel:clientes_cadastrar' %}" class="btn btn-primary">Cadastrar primeiro cliente</a>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

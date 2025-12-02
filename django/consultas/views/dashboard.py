@@ -20,10 +20,20 @@ class DashboardVetView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     Apenas veterinários podem acessar
     """
     template_name = 'consultas/dashboard.html'
+    login_url = 'local_login'
     
     def test_func(self):
         """Verifica se o usuário é veterinário"""
         return self.request.user.is_veterinario()
+    
+    def handle_no_permission(self):
+        """Redireciona para home se não tiver permissão"""
+        from django.shortcuts import redirect
+        from django.contrib import messages
+        if self.request.user.is_authenticated:
+            messages.error(self.request, 'Você não tem permissão para acessar o painel veterinário.')
+            return redirect('home')
+        return redirect('local_login')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

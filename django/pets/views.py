@@ -60,16 +60,20 @@ class AnimalCreateView(LoginRequiredMixin, CreateView):
 
 
 class AnimalUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    """Edição de animal (somente proprietário)"""
+    """Edição de animal (proprietário ou funcionários)"""
     model = Animal
     fields = ['nome', 'tipo_animal', 'raca', 'sexo', 'data_nascimento', 'observacoes']
     template_name = 'animal_form.html'
     success_url = reverse_lazy('animal_list')
     
     def test_func(self):
-        # Verifica se o usuário é o proprietário do animal
+        # Verifica se o usuário é o proprietário do animal ou é staff/funcionário
         animal = self.get_object()
-        return animal.proprietario == self.request.user
+        return (animal.proprietario == self.request.user or 
+                self.request.user.is_staff or
+                self.request.user.is_funcionario() or
+                self.request.user.is_supervisor() or
+                self.request.user.is_gerente())
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

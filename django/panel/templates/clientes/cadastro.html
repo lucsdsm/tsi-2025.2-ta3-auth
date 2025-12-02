@@ -1,0 +1,334 @@
+{% extends 'base_func.html' %}
+
+{% block title %}Cadastrar Cliente{% endblock %}
+
+{% block breadcrumb %}Dashboard / Cadastrar Cliente{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .form-section {
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .form-section h2 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 15px;
+        transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .form-group small {
+        display: block;
+        margin-top: 5px;
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .form-row-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 5px 0 0 0;
+    }
+    
+    .errorlist li {
+        color: #dc3545;
+        font-size: 13px;
+        padding: 6px 10px;
+        background: #f8d7da;
+        border-radius: 4px;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid #f0f0f0;
+    }
+    
+    .info-box {
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 30px;
+    }
+    
+    .info-box h4 {
+        margin: 0 0 8px 0;
+        color: #0066cc;
+        font-size: 16px;
+    }
+    
+    .info-box p {
+        margin: 0;
+        color: #333;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h1 style="color: #2c3e50;">👤 Cadastrar Novo Cliente</h1>
+    <a href="{% url 'painel_funcionario' %}" class="btn btn-secondary">← Voltar</a>
+</div>
+
+<div class="form-container">
+    <div class="info-box">
+        <h4>📋 Informações Importantes</h4>
+        <p>
+            <strong>CPF será usado como username do cliente.</strong><br>
+            A senha padrão gerada será: <code>Pet@[6 primeiros dígitos do CPF]</code><br>
+            <em>Exemplo: CPF 123.456.789-00 → Senha: Pet@123456</em>
+        </p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Dados do Cliente -->
+        <div class="form-section">
+            <h2>👤 Dados do Cliente</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_first_name">{{ form.first_name.label }} *</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.first_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_last_name">{{ form.last_name.label }} *</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.last_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_cpf">{{ form.cpf.label }} *</label>
+                    {{ form.cpf }}
+                    {% if form.cpf.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.cpf.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <small>{{ form.cpf.help_text }}</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_telefone">{{ form.telefone.label }}</label>
+                    {{ form.telefone }}
+                    {% if form.telefone.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.telefone.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_email">{{ form.email.label }} *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.email.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Dados do Pet -->
+        <div class="form-section">
+            <h2>🐾 Dados do Pet</h2>
+            
+            <div class="form-group">
+                <label for="id_pet_nome">{{ form.pet_nome.label }} *</label>
+                {{ form.pet_nome }}
+                {% if form.pet_nome.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.pet_nome.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_pet_tipo">{{ form.pet_tipo.label }} *</label>
+                    {{ form.pet_tipo }}
+                    {% if form.pet_tipo.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.pet_tipo.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_pet_raca">{{ form.pet_raca.label }} *</label>
+                    {{ form.pet_raca }}
+                    {% if form.pet_raca.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.pet_raca.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label for="id_pet_sexo">{{ form.pet_sexo.label }} *</label>
+                    {{ form.pet_sexo }}
+                    {% if form.pet_sexo.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.pet_sexo.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_pet_peso">{{ form.pet_peso.label }}</label>
+                    {{ form.pet_peso }}
+                    {% if form.pet_peso.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.pet_peso.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_pet_tamanho">{{ form.pet_tamanho.label }}</label>
+                    {{ form.pet_tamanho }}
+                    {% if form.pet_tamanho.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.pet_tamanho.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_pet_data_nascimento">{{ form.pet_data_nascimento.label }}</label>
+                {{ form.pet_data_nascimento }}
+                {% if form.pet_data_nascimento.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.pet_data_nascimento.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_pet_observacoes">{{ form.pet_observacoes.label }}</label>
+                {{ form.pet_observacoes }}
+                {% if form.pet_observacoes.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.pet_observacoes.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Botões de Ação -->
+        <div class="form-actions">
+            <a href="{% url 'painel_funcionario' %}" class="btn btn-secondary">✖ Cancelar</a>
+            <button type="submit" class="btn btn-primary">✓ Cadastrar Cliente e Pet</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -17,7 +17,12 @@ class PetAdminListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     paginate_by = 20
     
     def test_func(self):
-        return self.request.user.is_staff
+        """Permite acesso para staff e funcionários"""
+        user = self.request.user
+        return (user.is_staff or 
+                user.is_funcionario() or
+                user.is_supervisor() or
+                user.is_gerente())
     
     def get_queryset(self):
         queryset = Animal.objects.select_related(

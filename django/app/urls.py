@@ -20,6 +20,7 @@ from django.urls import path, include
 from users.views import home
 from django.conf import settings
 from django.conf.urls.static import static
+from panel.views import DashboardFuncView
 
 urlpatterns = [
     path("", home, name="home"),
@@ -27,6 +28,7 @@ urlpatterns = [
     path("users/", include("users.urls")),
     path("pets/", include("pets.urls")),
     path("painel-admin/", include("panel.urls")),
+    path("painel-funcionario/", DashboardFuncView.as_view(), name='painel_funcionario'),
     path("painel-veterinario/", include("consultas.urls")),
     path("produtos/", include("produtos.urls")),
 ]

@@ -39,6 +39,7 @@ ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
     'https://*.app.github.dev',
     'https://*.githubpreview.dev',
+    'https://scaling-space-garbanzo-976xwjq4qxrp2xxx7-8000.app.github.dev',
     'https://zany-goggles-94w6qq9v55g2w55-8000.app.github.dev',
     'https://paranormal-incantation-rvw7rrg979jcxvqr-8000.app.github.dev',
     'https://urban-guacamole-97669rr7vjjw3757w-8000.app.github.dev',
@@ -51,10 +52,12 @@ CSRF_TRUSTED_ORIGINS = [
 CSRF_COOKIE_SECURE = False  # Desabilitado para desenvolvimento
 CSRF_COOKIE_HTTPONLY = False  # Permite JavaScript acessar o token
 CSRF_COOKIE_SAMESITE = 'Lax'  # Lax é mais compatível com Codespaces
-CSRF_USE_SESSIONS = True  # Armazena token na sessão (mais estável após login)
+CSRF_USE_SESSIONS = False  # Usa cookie em vez de sessão para evitar problemas após logout
 CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_COOKIE_DOMAIN = None
 CSRF_COOKIE_AGE = 31449600  # 1 ano
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+CSRF_FAILURE_VIEW = 'app.error_views.csrf_failure'
 SESSION_COOKIE_SECURE = False  # Desabilitado para desenvolvimento
 SESSION_COOKIE_SAMESITE = 'Lax'  # Lax é mais compatível
 SESSION_COOKIE_AGE = 1209600  # 2 semanas
@@ -62,7 +65,6 @@ SESSION_SAVE_EVERY_REQUEST = True  # Salva sessão em cada request
 
 # Para desenvolvimento, aceita CSRF token do referer
 CSRF_COOKIE_PATH = '/'
-CSRF_FAILURE_VIEW = 'app.error_views.csrf_failure'
 
 # Application definition
 
